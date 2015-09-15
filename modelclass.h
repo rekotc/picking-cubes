@@ -22,6 +22,7 @@ using namespace std;
 #include "textureclass.h"
 
 
+
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ModelClass
 ////////////////////////////////////////////////////////////////////////////////
@@ -52,12 +53,18 @@ public:
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
+	void setPosition(D3DXVECTOR3);
+	D3DXVECTOR3 getPosition();
+
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture();
 	AabbClass* getBoundingBox();
 
 	void setId(int);
 	int getId();
+
+	void setColor(D3DXVECTOR4);
+	D3DXVECTOR4 getColor();
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
@@ -81,6 +88,9 @@ private:
 	ModelType* m_model;
 	AabbClass* m_boundingBox;
 	int m_id;
+
+	D3DXVECTOR3 position;
+	D3DXVECTOR4 pickedUpColor;
 };
 
 #endif

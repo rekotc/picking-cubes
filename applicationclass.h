@@ -19,6 +19,7 @@
 #include "bitmapclass.h"
 //#include "aabbclass.h"
 #include "collisionclass.h"
+#include "modellistclass.h"
 #include <math.h>
 #include <DirectXMath.h>
 
@@ -60,6 +61,13 @@ private:
 	InputClass* m_Input;
 	D3DClass* m_D3D;
 	CameraClass* m_Camera;
+
+	// Create the model list object.
+	ModelListClass* m_ModelList;
+
+
+	ModelClass* m_Models[2];
+
 	ModelClass* m_Model;
 	ModelClass* m_Model2;
 

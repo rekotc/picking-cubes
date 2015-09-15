@@ -9,6 +9,12 @@ ApplicationClass::ApplicationClass()
 	m_Input = 0;
 	m_D3D = 0;
 	m_Camera = 0;
+
+	m_ModelList = 0;
+
+	m_Models[0] = 0;
+	m_Models[1] = 0;
+
 	m_Model = 0;
 	m_Model2 = 0;
 	m_Arrows = 0;
@@ -21,8 +27,7 @@ ApplicationClass::ApplicationClass()
 	m_ArrowUp = 0;
 	//bCube = 0;
 	//bCube2 = 0;
-	pickedUpColors[0] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
-	pickedUpColors[1] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
+	
 	pickedUpMesh = 0;
 }
 
@@ -84,9 +89,47 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(10.0f, 10.0f, -5.0f);
+	m_Camera->SetPosition(10.0f, 10.0f, -30.0f);
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
+
+	// Create the model list object.
+	m_ModelList = new ModelListClass;
+	if (!m_ModelList)
+	{
+		return false;
+	}
+
+	// Initialize the model list object.
+	result = m_ModelList->Initialize(25);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the model list object.", L"Error", MB_OK);
+		return false;
+	}
+
+
+	for (int id = 0; id < 2; id++){
+		// Create the model object.
+		m_Models[id] = new ModelClass;
+		if (!m_Models[id])
+		{
+			return false;
+		}
+		m_Models[id]->setId(id);
+
+		// Initialize the model object.
+		result = m_Models[id]->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/blue.dds");
+		if (!result)
+		{
+			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
+			return false;
+		}
+		
+	}
+
+	m_Models[0]->setPosition(D3DXVECTOR3(10.0f, 10.0f, 10.0f));
+	m_Models[1]->setPosition(D3DXVECTOR3(12.0f, 12.0f, 10.0f));
 
 	// Create the model object.
 	m_Model = new ModelClass;
@@ -385,8 +428,12 @@ bool ApplicationClass::Render()
 {
 	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, translateMatrix, rotateMatrix;
 	bool result;
+	int renderCount, modelCount, index;
 	int mouseX, mouseY;
-	
+	D3DXVECTOR4 color;
+	float positionX, positionY, positionZ, radius;
+
+	D3DXVECTOR3 position;
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -400,6 +447,67 @@ bool ApplicationClass::Render()
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 	m_D3D->GetOrthoMatrix(orthoMatrix);
 
+	for (index = 0; index < 2; index++)
+	{
+		// Get the position and color of the sphere model at this index.
+		//m_ModelList->GetData(index, positionX, positionY, positionZ, color);
+
+		// Set the radius of the sphere to 1.0 since this is already known.
+		//radius = 1.0f;
+		position = m_Models[index]->getPosition();
+		// Move the model to the location it should be rendered at.
+		D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		m_Models[index]->Render(m_D3D->GetDeviceContext());
+		// Render the model using the light shader.
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[index]->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Models[index]->GetTexture(), m_Light->GetDirection(), m_Models[index]->getColor());
+
+		// Reset to the original world matrix.
+		m_D3D->GetWorldMatrix(worldMatrix);
+
+		// Since this model was rendered then increase the count for this frame.
+		//renderCount++;
+
+	}
+
+
+
+	/*
+	// Get the number of models that will be rendered.
+	modelCount = m_ModelList->GetModelCount();
+
+	// Initialize the count of models that have been rendered.
+	renderCount = 0;
+
+	
+	for (index = 0; index < modelCount; index++)
+	{
+		// Get the position and color of the sphere model at this index.
+		m_ModelList->GetData(index, positionX, positionY, positionZ, color);
+
+		// Set the radius of the sphere to 1.0 since this is already known.
+		radius = 1.0f;
+		
+		// Move the model to the location it should be rendered at.
+		D3DXMatrixTranslation(&worldMatrix, positionX, positionY, positionZ);
+
+		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+		m_Model->Render(m_D3D->GetDeviceContext());
+
+		// Render the model using the light shader.
+		
+
+		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), color);
+
+		// Reset to the original world matrix.
+		m_D3D->GetWorldMatrix(worldMatrix);
+
+		// Since this model was rendered then increase the count for this frame.
+		renderCount++;
+		
+	}
+	*/
+	/*
 	// Translate to the location of the sphere.
 	D3DXMatrixTranslation(&translateMatrix, 10.0f, 10.0f, 10.0f);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix); 
@@ -412,7 +520,9 @@ bool ApplicationClass::Render()
 	{
 		return false;
 	}
+	
 
+	
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
 
@@ -421,8 +531,8 @@ bool ApplicationClass::Render()
 	D3DXMatrixRotationY(&rotateMatrix, XM_PIDIV2);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &rotateMatrix);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix);
-	
-
+	*/
+	/*
 	// Render the SECOND model using the light shader.
 	m_Model2->Render(m_D3D->GetDeviceContext());
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model2->GetTexture(), m_Light->GetDirection(), pickedUpColors[1]);
@@ -430,6 +540,7 @@ bool ApplicationClass::Render()
 	{
 		return false;
 	}
+	*/
 
 	/*
 	if (pickedUpMesh->getCurrentId() != -2){
@@ -441,10 +552,13 @@ bool ApplicationClass::Render()
 
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
-
-	if (pickedUpMesh->getCurrentId() != -1){
+	int selected = pickedUpMesh->getCurrentId();
+	if (selected != -1){
 		// Translate to the location of the sphere.
-		D3DXMatrixTranslation(&translateMatrix, 10.0f, 12.0f, 10.0f);
+
+		position = m_Models[selected]->getPosition();
+		// Move the model to the location it should be rendered at.
+		D3DXMatrixTranslation(&translateMatrix, position.x, position.y+2.0f, position.z);
 		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix);
 		// Render the Arrows model using the light shader.
 		m_Arrows->Render(m_D3D->GetDeviceContext());
@@ -455,8 +569,9 @@ bool ApplicationClass::Render()
 		{
 			return false;
 		}
+		
 	}
-
+	
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
 
@@ -501,7 +616,10 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 	D3DXMATRIX projectionMatrix, viewMatrix, inverseViewMatrix, worldMatrix, translateMatrix, inverseWorldMatrix;
 	D3DXVECTOR3 direction, origin, rayOrigin, rayDirection;
 	bool intersect, result;
-	
+
+	D3DXVECTOR4 color;
+	float positionX, positionY, positionZ, radius;
+	int modelCount, index;
 
 	// Move the mouse cursor coordinates into the -1 to +1 range.
 	pointX = ((2.0f * (float)mouseX) / (float)m_screenWidth) - 1.0f;
@@ -524,8 +642,48 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 	// Get the origin of the picking ray which is the position of the camera.
 	origin = m_Camera->GetPosition();
 
+	
+	//salvo il currentId come lastId
+	pickedUpMesh->setLastId(pickedUpMesh->getCurrentId());
+
+	//resetto la pickedUpMesh
+	pickedUpMesh->setCurrentId(-1);
+	pickedUpMesh->setCurrentMinDistance(999999999);
+
+	// Get the number of models that will be rendered.
+	modelCount = m_ModelList->GetModelCount();
+
+	for (index = 0; index < 2; index++)
+	{
+		// Get the world matrix and translate to the location of the sphere.
+		m_D3D->GetWorldMatrix(worldMatrix);
+
+		D3DXVECTOR3 position = m_Models[index]->getPosition();
+		// Move the model to the location it should be rendered at.
+		D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
+		
+		// Now get the inverse of the translated world matrix.
+		D3DXMatrixInverse(&inverseWorldMatrix, NULL, &worldMatrix);
+
+		// Now transform the ray origin and the ray direction from view space to world space.
+		D3DXVec3TransformCoord(&rayOrigin, &origin, &inverseWorldMatrix);
+		D3DXVec3TransformNormal(&rayDirection, &direction, &inverseWorldMatrix);
+
+		// Normalize the ray direction.
+		D3DXVec3Normalize(&rayDirection, &rayDirection);
+			
+
+		// Now perform the ray-sphere intersection test.
+		//intersect = RaySphereIntersect(rayOrigin, rayDirection, 1.0f);
+		intersect = RayAABBIntersect(pickedUpMesh, index, rayOrigin, rayDirection, m_Models[index]->getBoundingBox());
+
+	}
+
+	/*
+
 	// Get the world matrix and translate to the location of the sphere.
 	m_D3D->GetWorldMatrix(worldMatrix);
+
 	D3DXMatrixTranslation(&translateMatrix, 10.0f, 10.0f, 10.0f);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix); 
 
@@ -571,6 +729,7 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 	D3DXVec3Normalize(&rayDirection, &rayDirection);
 
 	intersect = RayAABBIntersect(pickedUpMesh, m_Model2->getId(), rayOrigin, rayDirection, m_Model2->getBoundingBox());
+	*/
 
 	//pickedUpMesh->
 
@@ -672,23 +831,12 @@ bool ApplicationClass::setPickedUpMesh(CollisionClass* pickedUpMesh){
 
 bool ApplicationClass::setPickedUpColor(int id){
 
-	/*
-	for (int i = 0; i < sizeof(pickedUpColors) / sizeof(D3DXVECTOR4); i++){
-
-	if (i == id){
-		pickedUpColors[i] = D3DXVECTOR4(0.5f, 0.6f, 0.34f, 1.0f);
-	}
-	else pickedUpColors[i] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
-		
-	}*/
-	//prendo l'id dell'ultima mesh selezionata
+	//prendo l'id dell'ultima mesh selezionata e di quella correntemente selezionata
 	int last	= pickedUpMesh->getLastId();
 	int current = pickedUpMesh->getCurrentId();
-	//se è diverso da -1 significa che al passo precedente avevo selezionato
-	//una mesh, quindi ne resetto il colore
-	if(last!=-1)pickedUpColors[last] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
-	//vado poi a modificare il colore della mesh correntemente selezionata (se diversa da -1)
-	if (current!=-1)pickedUpColors[current] = D3DXVECTOR4(0.5f, 0.6f, 0.34f, 1.0f);
+	//-1 indica che non c'è nessuna selezione attiva, altrimenti il valore intero corrisponde all'id della mesh selezionata
+	if (last != -1)m_Models[last]->setColor(D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f));
+	if (current != -1)m_Models[current]->setColor(D3DXVECTOR4(0.5f, 0.6f, 0.34f, 1.0f));
 
 	return true;
 

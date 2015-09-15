@@ -12,6 +12,9 @@ ModelClass::ModelClass()
 	m_model = 0;
 	m_boundingBox = 0;
 	m_id = 0;
+
+	pickedUpColor = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
+	//pickedUpColors[1] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
 }
 
 
@@ -503,4 +506,25 @@ void ModelClass::setId(int id){
 int ModelClass::getId(){
 
 	return m_id;
+}
+
+void ModelClass::setPosition(D3DXVECTOR3 p){
+
+	position = p;
+}
+
+D3DXVECTOR3 ModelClass::getPosition(){
+
+	return position;
+}
+
+void ModelClass::setColor(D3DXVECTOR4 c)
+{
+	pickedUpColor = c;
+
+}
+
+D3DXVECTOR4 ModelClass::getColor()
+{
+	return pickedUpColor;
 }
