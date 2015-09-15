@@ -20,6 +20,9 @@
 //#include "aabbclass.h"
 #include "collisionclass.h"
 #include <math.h>
+#include <DirectXMath.h>
+
+using namespace DirectX;
 
 /////////////
 // GLOBALS //
@@ -59,11 +62,16 @@ private:
 	CameraClass* m_Camera;
 	ModelClass* m_Model;
 	ModelClass* m_Model2;
+
+	ModelClass* m_Arrows;
+
 	TextureShaderClass* m_TextureShader;
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
 	TextClass* m_Text;
 	BitmapClass* m_Bitmap;
+
+	BitmapClass* m_ArrowUp;
 	bool m_beginCheck;
 	int m_screenWidth, m_screenHeight;
 

@@ -11,11 +11,14 @@ ApplicationClass::ApplicationClass()
 	m_Camera = 0;
 	m_Model = 0;
 	m_Model2 = 0;
+	m_Arrows = 0;
+
 	m_TextureShader = 0;
 	m_LightShader = 0;
 	m_Light = 0;
 	m_Text = 0;
 	m_Bitmap = 0;
+	m_ArrowUp = 0;
 	//bCube = 0;
 	//bCube2 = 0;
 	pickedUpColors[0] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -116,6 +119,22 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 		return false;
 	}
 
+	// Create the Arrows
+	m_Arrows = new ModelClass;
+	if (!m_Arrows)
+	{
+		return false;
+	}
+	//m_Arrows->setId(1);
+
+	// Initialize the model object.
+	result = m_Arrows->InitializeFlatRectangle(m_D3D->GetDevice(),10.0f,10.0f, L"../data/up.dds");
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the arrows object.", L"Error", MB_OK);
+		return false;
+	}
+
 	// Create the texture shader object.
 	m_TextureShader = new TextureShaderClass;
 	if(!m_TextureShader)
@@ -181,6 +200,20 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	// Initialize the bitmap object.
 	result = m_Bitmap->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../data/mouse.dds", 32, 32);
 	if(!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
+		return false;
+	}
+
+	m_ArrowUp = new BitmapClass;
+	if (!m_ArrowUp)
+	{
+		return false;
+	}
+
+	// Initialize the bitmap object.
+	result = m_ArrowUp->Initialize(m_D3D->GetDevice(), screenWidth, screenHeight, L"../data/mouse.dds", 100, 100);
+	if (!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the bitmap object.", L"Error", MB_OK);
 		return false;
@@ -331,7 +364,10 @@ bool ApplicationClass::HandleInput()
 		{
 			m_beginCheck = true;
 			m_Input->GetMouseLocation(mouseX, mouseY);
+			//qui devi restituire l'id del cubo selezionato, altrimenti -1
 			TestIntersection(mouseX, mouseY);
+			//se l'id è diverso da 0, è stato selezionato un cubo, allora imposta a true il disegno delle icone di rotazione.
+
 		}
 	}
 
@@ -347,7 +383,7 @@ bool ApplicationClass::HandleInput()
 
 bool ApplicationClass::Render()
 {
-	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, translateMatrix;
+	D3DXMATRIX worldMatrix, viewMatrix, projectionMatrix, orthoMatrix, translateMatrix, rotateMatrix;
 	bool result;
 	int mouseX, mouseY;
 	
@@ -368,6 +404,7 @@ bool ApplicationClass::Render()
 	D3DXMatrixTranslation(&translateMatrix, 10.0f, 10.0f, 10.0f);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix); 
 
+
 	// Render the model using the light shader.
 	m_Model->Render(m_D3D->GetDeviceContext());
 	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(),pickedUpColors[0]);
@@ -376,16 +413,48 @@ bool ApplicationClass::Render()
 		return false;
 	}
 
+	// Reset the world matrix.
+	m_D3D->GetWorldMatrix(worldMatrix);
+
 	// Translate to the location of the sphere.
-	D3DXMatrixTranslation(&translateMatrix,1.0f, 0.0f, 5.0f);
+	D3DXMatrixTranslation(&translateMatrix,12.0f, 12.0f, 10.0f);
+	D3DXMatrixRotationY(&rotateMatrix, XM_PIDIV2);
+	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &rotateMatrix);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix);
+	
 
 	// Render the SECOND model using the light shader.
 	m_Model2->Render(m_D3D->GetDeviceContext());
-	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model->GetTexture(), m_Light->GetDirection(), pickedUpColors[1]);
+	result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Model2->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Model2->GetTexture(), m_Light->GetDirection(), pickedUpColors[1]);
 	if (!result)
 	{
 		return false;
+	}
+
+	/*
+	if (pickedUpMesh->getCurrentId() != -2){
+		result = m_ArrowUp->Render(m_D3D->GetDeviceContext(), 6.0f, 6.0f);  if (!result) { return false; }
+		//result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_ArrowUp->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ArrowUp->GetTexture());
+		m_LightShader->Render(m_D3D->GetDeviceContext(), m_ArrowUp->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ArrowUp->GetTexture(), m_Light->GetDirection(), pickedUpColors[0]);
+	}
+	*/
+
+	// Reset the world matrix.
+	m_D3D->GetWorldMatrix(worldMatrix);
+
+	if (pickedUpMesh->getCurrentId() != -1){
+		// Translate to the location of the sphere.
+		D3DXMatrixTranslation(&translateMatrix, 10.0f, 12.0f, 10.0f);
+		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix);
+		// Render the Arrows model using the light shader.
+		m_Arrows->Render(m_D3D->GetDeviceContext());
+		//result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Arrows->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Arrows->GetTexture(), m_Light->GetDirection(), pickedUpColors[1]);
+		m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Arrows->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Arrows->GetTexture());
+
+		if (!result)
+		{
+			return false;
+		}
 	}
 
 	// Reset the world matrix.
@@ -403,6 +472,8 @@ bool ApplicationClass::Render()
 	// Render the mouse cursor with the texture shader.
 	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), mouseX, mouseY);  if(!result) { return false; }
 	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
+
+	
 
 	// Render the text strings.
 	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
@@ -479,12 +550,14 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 	//intersect = RaySphereIntersect(rayOrigin, rayDirection, 1.0f);
 	intersect = RayAABBIntersect(pickedUpMesh, m_Model->getId(), rayOrigin, rayDirection, m_Model->getBoundingBox());
 	
-	
+	// Reset the world matrix.
+	m_D3D->GetWorldMatrix(worldMatrix);
+
 	//seconda sfera
 	
 	// Get the world matrix and translate to the location of the sphere.
 	//m_D3D->GetWorldMatrix(worldMatrix);
-	D3DXMatrixTranslation(&translateMatrix, 1.0f, 0.0f, 5.0f);
+	D3DXMatrixTranslation(&translateMatrix, 12.0f, 12.0f, 10.0f);
 	D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &translateMatrix);
 
 	// Now get the inverse of the translated world matrix.
@@ -574,49 +647,7 @@ bool ApplicationClass::RayAABBIntersect(CollisionClass* pickedUpMesh, int curren
 	}
 	else
 	return false;
-
-
-	/*
-	float tmin = 0.0f; // set to -FLT_MAX to get first hit on line
-	float tmax = 10.0f; // set to max distance ray can travel (for segment)
-
-
-	float p[3];
-	p[0] = rayOrigin.x;
-	p[1] = rayOrigin.y;
-	p[2] = rayOrigin.z;
-
-	float d[3];
-	d[0] = rayDirection.x;
-	d[1] = rayDirection.y;
-	d[2] = rayDirection.z;
-
-
-
-		// For all three slabs
-		for (int i = 0; i < 3; i++) {
 	
-				// Compute intersection t value of ray with near and far plane of slab
-				float ood = 1.0f / d[i];
-				float t1 = (bCube->min[i] - p[i]) * ood;
-				float t2 = (bCube->max[i] - p[i]) * ood;
-				// Make t1 be intersection with near plane, t2 with far plane
-				if (t1 > t2){
-					//Swap(t1, t2);
-					float temp = t1;
-					t1 = t2;
-					t2 = temp;
-				}
-				// Compute the intersection of slab intersection intervals
-				if (t1 > tmin) tmin = t1;
-				if (t2 > tmax) tmax = t2;
-				// Exit with no collision as soon as slab intersection becomes empty
-				if (tmin > tmax) return 0;
-			}
-		//}
-	// Ray intersects all 3 slabs. Return point (q) and intersection t value (tmin)
-	//q = p + d* tmin;
-	return 1;*/
 }
 
 bool ApplicationClass::setPickedUpMesh(CollisionClass* pickedUpMesh){

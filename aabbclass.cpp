@@ -32,3 +32,18 @@ AabbClass::AabbClass(const AabbClass& other)
 AabbClass::~AabbClass()
 {
 }
+
+void AabbClass::BuildBoundingBox(float minX, float minY, float minZ, float maxX, float maxY, float maxZ)
+{
+	//min x y z
+	min[0] = minX;
+	min[1] = minY;
+	min[2] = minZ;
+	//max x y z
+	max[0] = maxX;
+	max[1] = maxY;
+	max[2] = maxZ;
+
+
+}
+

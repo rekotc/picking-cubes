@@ -10,10 +10,11 @@
 //////////////
 #include <d3d11.h>
 #include <d3dx10math.h>
+//#include <directxmath.h>
 #include <fstream>
 #include "aabbclass.h"
 using namespace std;
-
+//using namespace DirectX;
 
 ///////////////////////
 // MY CLASS INCLUDES //
@@ -47,6 +48,7 @@ public:
 	~ModelClass();
 
 	bool Initialize(ID3D11Device*, char*, WCHAR*);
+	bool InitializeFlatRectangle(ID3D11Device*, float width, float height, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
 
@@ -59,6 +61,8 @@ public:
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
+	bool InitializeBuffersFlatRectangle(ID3D11Device*);
+
 	void ShutdownBuffers();
 	void RenderBuffers(ID3D11DeviceContext*);
 

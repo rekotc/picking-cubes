@@ -22,26 +22,28 @@ private:
 
 
 public:
+	float min[3];
+	float max[3];
+
 	AabbClass();
 	AabbClass(const AabbClass&);
 	~AabbClass();
 
 	void Shutdown();
 
-	void BuildVertexArray(void*, char*, float, float);
+	//void BuildVertexArray(void*, char*, float, float);
+	void BuildBoundingBox(float,float,float,float,float,float);
 
-	float min[3];
-	float max[3];
+	
 
 private:
+
+	
+
 	bool LoadFontData(char*);
 	void ReleaseFontData();
 	
 	void ReleaseTexture();
-
-private:
-	//FontType* m_Font;
-	
 	
 };
 
