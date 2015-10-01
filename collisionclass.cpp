@@ -3,10 +3,13 @@
 
 CollisionClass::CollisionClass()
 {
-	m_Id = -1;
-	m_lastId = -1;
-	m_tMinDistance = INFINITY;
-
+	m_ClosestId = -1;
+	m_SelectedId = -1;
+	m_LastSelectedId = -1;
+	m_HoverId = -1;
+	m_LastHoverId = -1;
+	m_tMinDistance = 999999999;
+	wasClicked = false;
 }
 
 
@@ -14,22 +17,38 @@ CollisionClass::~CollisionClass()
 {
 }
 
-
-int CollisionClass::getCurrentId()
+void CollisionClass::setClosestId(int id)
 {
-	return m_Id;
+	m_ClosestId = id;
 }
 
-int CollisionClass::getCurrentMinDistance()
+int CollisionClass::getClosestId()
 {
-	return m_tMinDistance;
+	return m_ClosestId;
 }
 
-void CollisionClass::setCurrentId(int id)
+int CollisionClass::getCurrentSelectedId()
 {
-	m_Id = id;
+	return m_SelectedId;
+}
+
+void CollisionClass::setCurrentSelectedId(int id)
+{
+	m_SelectedId = id;
 
 }
+
+int CollisionClass::getCurrentHoverId()
+{
+	return m_HoverId;
+}
+
+void CollisionClass::setCurrentHoverId(int id)
+{
+	m_HoverId = id;
+
+}
+
 
 void CollisionClass::setCurrentMinDistance(double mindistance)
 {
@@ -37,13 +56,41 @@ void CollisionClass::setCurrentMinDistance(double mindistance)
 
 }
 
-int CollisionClass::getLastId()
+int CollisionClass::getLastSelectedId()
 {
-	return m_lastId;
+	return m_LastSelectedId;
 }
 
-void CollisionClass::setLastId(int id)
+void CollisionClass::setLastSelectedId(int id)
 {
-	m_lastId = id;
+	m_LastSelectedId = id;
 
 }
+
+int CollisionClass::getLastHoverId()
+{
+	return m_LastHoverId;
+}
+
+void CollisionClass::setLastHoverId(int id)
+{
+	m_LastHoverId = id;
+
+}
+
+
+void CollisionClass::setClicked(bool c)
+{
+	wasClicked = c;
+
+}
+
+bool CollisionClass::getClicked(){
+	return wasClicked;
+}
+
+int CollisionClass::getCurrentMinDistance()
+{
+	return m_tMinDistance;
+}
+

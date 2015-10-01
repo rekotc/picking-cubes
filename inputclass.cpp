@@ -9,6 +9,8 @@ InputClass::InputClass()
 	m_directInput = 0;
 	m_keyboard = 0;
 	m_mouse = 0;
+	m_oldMouseX = -1;
+	m_oldMouseY = -1;
 }
 
 
@@ -251,4 +253,24 @@ bool InputClass::IsLeftMouseButtonDown()
 	}
 
 	return false;
+}
+
+void InputClass::setOldMouseX(int mx)
+{
+	m_oldMouseX = mx;
+}
+
+void InputClass::setOldMouseY(int my)
+{
+	m_oldMouseY = my;
+}
+
+int InputClass::getOldMouseX()
+{
+	return m_oldMouseX;
+}
+
+int InputClass::getOldMouseY()
+{
+	return m_oldMouseY;
 }

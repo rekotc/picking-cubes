@@ -14,6 +14,13 @@ ApplicationClass::ApplicationClass()
 
 	m_Models[0] = 0;
 	m_Models[1] = 0;
+	m_Models[2] = 0;
+	m_Models[3] = 0;
+	m_Models[4] = 0;
+	m_Models[5] = 0;
+	m_Models[6] = 0;
+	m_Models[7] = 0;
+	m_Models[8] = 0;
 
 	m_Model = 0;
 	m_Model2 = 0;
@@ -28,7 +35,9 @@ ApplicationClass::ApplicationClass()
 	//bCube = 0;
 	//bCube2 = 0;
 	
-	pickedUpMesh = 0;
+	selectionState = 0;
+
+	rotation = 0.0f;
 }
 
 
@@ -89,7 +98,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	}
 
 	// Set the initial position of the camera.
-	m_Camera->SetPosition(10.0f, 10.0f, -30.0f);
+	m_Camera->SetPosition(10.0f, 10.0f, -10.0f);
 	m_Camera->Render();
 	m_Camera->GetViewMatrix(baseViewMatrix);
 
@@ -109,7 +118,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	}
 
 
-	for (int id = 0; id < 2; id++){
+	for (int id = 0; id < NUM_CUBES; id++){
 		// Create the model object.
 		m_Models[id] = new ModelClass;
 		if (!m_Models[id])
@@ -119,7 +128,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 		m_Models[id]->setId(id);
 
 		// Initialize the model object.
-		result = m_Models[id]->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/blue.dds");
+		result = m_Models[id]->Initialize(m_D3D->GetDevice(), "../data/crate.txt", L"../data/crate.dds");
 		if (!result)
 		{
 			MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -129,7 +138,15 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	}
 
 	m_Models[0]->setPosition(D3DXVECTOR3(10.0f, 10.0f, 10.0f));
-	m_Models[1]->setPosition(D3DXVECTOR3(12.0f, 12.0f, 10.0f));
+	m_Models[1]->setPosition(D3DXVECTOR3(12.0f, 10.0f, 10.0f));
+	m_Models[2]->setPosition(D3DXVECTOR3(14.0f, 10.0f, 10.0f));
+	m_Models[3]->setPosition(D3DXVECTOR3(10.0f, 12.0f, 10.0f));
+	m_Models[4]->setPosition(D3DXVECTOR3(12.0f, 12.0f, 10.0f));
+	m_Models[5]->setPosition(D3DXVECTOR3(14.0f, 12.0f, 10.0f));
+	m_Models[6]->setPosition(D3DXVECTOR3(10.0f, 14.0f, 10.0f));
+	m_Models[7]->setPosition(D3DXVECTOR3(12.0f, 14.0f, 10.0f));
+	m_Models[8]->setPosition(D3DXVECTOR3(14.0f, 14.0f, 10.0f));
+	
 
 	// Create the model object.
 	m_Model = new ModelClass;
@@ -139,7 +156,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 	}
 	m_Model->setId(0);
 	// Initialize the model object.
-	result = m_Model->Initialize(m_D3D->GetDevice(), "../data/sphere.txt", L"../data/blue.dds");
+	result = m_Model->Initialize(m_D3D->GetDevice(), "../data/crate.txt", L"../data/crate.dds");
 	if(!result)
 	{
 		MessageBox(hwnd, L"Could not initialize the model object.", L"Error", MB_OK);
@@ -267,7 +284,7 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 
 	//bCube = new AabbClass();
 	//bCube2 = new AabbClass();
-	pickedUpMesh = new CollisionClass();
+	selectionState = new CollisionClass();
 
 	return true;
 }
@@ -362,6 +379,17 @@ bool ApplicationClass::Frame()
 	bool result;
 
 
+	//rotation = 0.0f;
+
+
+	// Update the rotation variable each frame.
+	rotation += (float)D3DX_PI * 0.01f;
+	if (rotation > 360.0f)
+	{
+		rotation -= 360.0f;
+	}
+
+
 	// Handle the input processing.
 	result = HandleInput();
 	if(!result)
@@ -382,7 +410,7 @@ bool ApplicationClass::Frame()
 
 bool ApplicationClass::HandleInput()
 {
-	bool result;
+	bool result, onClick;
 	int mouseX, mouseY;
 
 
@@ -399,6 +427,30 @@ bool ApplicationClass::HandleInput()
 		return false;
 	}
 
+	//salvo lo stato del left mouse button
+	onClick = m_Input->IsLeftMouseButtonDown();	
+
+	//se ho cliccato
+	if (onClick == true){
+		//e prima il mouse non era premuto
+		if (m_beginCheck == false){
+			//inizio a considerarlo premuto
+			m_beginCheck = true;
+		}
+	}
+	//altrimenti vuol dire che non ho cliccato, quindi il mouse eventualmente è stato rilasciato, o è rimasto non premuto.
+	else{
+		m_beginCheck = false;
+		
+	}
+
+
+	m_Input->GetMouseLocation(mouseX, mouseY);
+	TestIntersection(mouseX, mouseY, onClick);
+
+
+
+	/*
 	// Check if the left mouse button has been pressed.
 	if(m_Input->IsLeftMouseButtonDown() == true)
 	{
@@ -408,17 +460,22 @@ bool ApplicationClass::HandleInput()
 			m_beginCheck = true;
 			m_Input->GetMouseLocation(mouseX, mouseY);
 			//qui devi restituire l'id del cubo selezionato, altrimenti -1
-			TestIntersection(mouseX, mouseY);
+			TestIntersection(mouseX, mouseY, true);
 			//se l'id è diverso da 0, è stato selezionato un cubo, allora imposta a true il disegno delle icone di rotazione.
 
 		}
 	}
-
+	else
+	{
+		m_Input->GetMouseLocation(mouseX, mouseY);
+		TestIntersection(mouseX, mouseY, false);
+	}
+	*/
 	// Check if the left mouse button has been released.
-	if(m_Input->IsLeftMouseButtonDown() == false)
+/*	if(m_Input->IsLeftMouseButtonDown() == false)
 	{
 		m_beginCheck = false;
-	}
+	}*/
 
 	return true;
 }
@@ -434,6 +491,7 @@ bool ApplicationClass::Render()
 	float positionX, positionY, positionZ, radius;
 
 	D3DXVECTOR3 position;
+	D3DXMATRIX translation, combine;
 
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
@@ -447,7 +505,7 @@ bool ApplicationClass::Render()
 	m_D3D->GetProjectionMatrix(projectionMatrix);
 	m_D3D->GetOrthoMatrix(orthoMatrix);
 
-	for (index = 0; index < 2; index++)
+	for (index = 0; index < NUM_CUBES; index++)
 	{
 		// Get the position and color of the sphere model at this index.
 		//m_ModelList->GetData(index, positionX, positionY, positionZ, color);
@@ -455,8 +513,38 @@ bool ApplicationClass::Render()
 		// Set the radius of the sphere to 1.0 since this is already known.
 		//radius = 1.0f;
 		position = m_Models[index]->getPosition();
+
+		/*
+		//COPIA INCOLLA
+		// translate the world matrix 
+		D3DXMATRIX MatTemp;  // Temp matrix for rotations.
+		D3DXMATRIX MatRot;   // Final rotation matrix, applied to // pMatWorld.
+
+		// Using the left-to-right order of matrix concatenation,
+		// apply the translation to the object's world position
+		// before applying the rotations.
+		//D3DXMatrixTranslation(&worldMatrix, -1.5f, -1.5f, 5.0f);
+		
+		D3DXMatrixIdentity(&MatRot);
+		D3DXMatrixIdentity(&MatTemp);
+
+		// Now, apply the orientation variables to the world matrix
+		D3DXMatrixRotationY(&MatTemp, XM_PIDIV2);           // Yaw
+		D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
+		// Apply the rotation matrices to complete the world matrix.
+		D3DXMatrixMultiply(&worldMatrix, &MatRot, &worldMatrix);
+		*/
+		//FINE COPIA INCOLLA
+		
+		//D3DXMatrixRotationY(&rotation, XM_PIDIV2);
+		//D3DXMatrixTranslation(&translation,position.x, position.y, position.z);
 		// Move the model to the location it should be rendered at.
+		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &rotation);
+		
+		//D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
+		D3DXMatrixRotationY(&worldMatrix, rotation);
 		D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
+
 		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 		m_Models[index]->Render(m_D3D->GetDeviceContext());
 		// Render the model using the light shader.
@@ -543,7 +631,7 @@ bool ApplicationClass::Render()
 	*/
 
 	/*
-	if (pickedUpMesh->getCurrentId() != -2){
+	if (selectionState->getCurrentId() != -2){
 		result = m_ArrowUp->Render(m_D3D->GetDeviceContext(), 6.0f, 6.0f);  if (!result) { return false; }
 		//result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_ArrowUp->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ArrowUp->GetTexture());
 		m_LightShader->Render(m_D3D->GetDeviceContext(), m_ArrowUp->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_ArrowUp->GetTexture(), m_Light->GetDirection(), pickedUpColors[0]);
@@ -552,7 +640,7 @@ bool ApplicationClass::Render()
 
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
-	int selected = pickedUpMesh->getCurrentId();
+	int selected = selectionState->getCurrentSelectedId();
 	if (selected != -1){
 		// Translate to the location of the sphere.
 
@@ -583,6 +671,8 @@ bool ApplicationClass::Render()
 
 	// Get the location of the mouse from the input object,
 	m_Input->GetMouseLocation(mouseX, mouseY);
+	
+
 
 	// Render the mouse cursor with the texture shader.
 	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), mouseX, mouseY);  if(!result) { return false; }
@@ -610,16 +700,20 @@ bool ApplicationClass::Render()
 }
 
 
-void ApplicationClass::TestIntersection(int mouseX, int mouseY)
+void ApplicationClass::TestIntersection(int mouseX, int mouseY, bool onClick)
 {
+
 	float pointX, pointY;
 	D3DXMATRIX projectionMatrix, viewMatrix, inverseViewMatrix, worldMatrix, translateMatrix, inverseWorldMatrix;
 	D3DXVECTOR3 direction, origin, rayOrigin, rayDirection;
 	bool intersect, result;
 
+	bool debug = false;
+
+
 	D3DXVECTOR4 color;
 	float positionX, positionY, positionZ, radius;
-	int modelCount, index;
+	int modelCount, index, lastSelectedId, lastHoverId;
 
 	// Move the mouse cursor coordinates into the -1 to +1 range.
 	pointX = ((2.0f * (float)mouseX) / (float)m_screenWidth) - 1.0f;
@@ -642,18 +736,42 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 	// Get the origin of the picking ray which is the position of the camera.
 	origin = m_Camera->GetPosition();
 
+	lastSelectedId = selectionState->getCurrentSelectedId();
+	lastHoverId = selectionState->getCurrentHoverId();
+	//resetto SEMPRE il colore dell'ultimo box hover, qualora ve ne sia uno
+	if (lastHoverId != -1){
+		setColor(lastHoverId, D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f));
+		selectionState->setCurrentHoverId(-1);
+		selectionState->setCurrentMinDistance(999999999);
+	}
+	//resetto SEMPRE il colore dell'ultimo box selected, qualora ve ne sia uno
+	if (lastSelectedId != -1){
+		setColor(lastSelectedId, D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f));
+		selectionState->setCurrentSelectedId(-1);
+		selectionState->setCurrentMinDistance(999999999);
+	}
 	
-	//salvo il currentId come lastId
-	pickedUpMesh->setLastId(pickedUpMesh->getCurrentId());
 
-	//resetto la pickedUpMesh
-	pickedUpMesh->setCurrentId(-1);
-	pickedUpMesh->setCurrentMinDistance(999999999);
+
+	/*
+	//salvo il currentId come lastId
+	selectionState->setLastId(selectionState->getCurrentId());
+
+	//resetto la selectionState
+	selectionState->setCurrentId(-1);
+	selectionState->setCurrentMinDistance(999999999);
+	*/
 
 	// Get the number of models that will be rendered.
 	modelCount = m_ModelList->GetModelCount();
 
-	for (index = 0; index < 2; index++)
+	if (mouseX >= 500 && mouseY >= 10){
+
+		debug = true;
+	}
+
+
+	for (index = 0; index < NUM_CUBES; index++)
 	{
 		// Get the world matrix and translate to the location of the sphere.
 		m_D3D->GetWorldMatrix(worldMatrix);
@@ -672,10 +790,10 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 		// Normalize the ray direction.
 		D3DXVec3Normalize(&rayDirection, &rayDirection);
 			
-
+		
 		// Now perform the ray-sphere intersection test.
 		//intersect = RaySphereIntersect(rayOrigin, rayDirection, 1.0f);
-		intersect = RayAABBIntersect(pickedUpMesh, index, rayOrigin, rayDirection, m_Models[index]->getBoundingBox());
+		intersect = RayAABBIntersect(debug,selectionState, index, rayOrigin, rayDirection, m_Models[index]->getBoundingBox());
 
 	}
 
@@ -698,15 +816,15 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 	D3DXVec3Normalize(&rayDirection, &rayDirection);
 
 	//salvo il currentId come lastId
-	pickedUpMesh->setLastId(pickedUpMesh->getCurrentId());
+	selectionState->setLastId(selectionState->getCurrentId());
 
-	//resetto la pickedUpMesh
-	pickedUpMesh->setCurrentId(-1);
-	pickedUpMesh->setCurrentMinDistance(999999999);
+	//resetto la selectionState
+	selectionState->setCurrentId(-1);
+	selectionState->setCurrentMinDistance(999999999);
 
 	// Now perform the ray-sphere intersection test.
 	//intersect = RaySphereIntersect(rayOrigin, rayDirection, 1.0f);
-	intersect = RayAABBIntersect(pickedUpMesh, m_Model->getId(), rayOrigin, rayDirection, m_Model->getBoundingBox());
+	intersect = RayAABBIntersect(selectionState, m_Model->getId(), rayOrigin, rayDirection, m_Model->getBoundingBox());
 	
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
@@ -728,12 +846,67 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY)
 	// Normalize the ray direction.
 	D3DXVec3Normalize(&rayDirection, &rayDirection);
 
-	intersect = RayAABBIntersect(pickedUpMesh, m_Model2->getId(), rayOrigin, rayDirection, m_Model2->getBoundingBox());
+	intersect = RayAABBIntersect(selectionState, m_Model2->getId(), rayOrigin, rayDirection, m_Model2->getBoundingBox());
 	*/
 
-	//pickedUpMesh->
+	
 
-	result = setPickedUpMesh(pickedUpMesh);
+	//se ho trovato una intersezione 
+	if (selectionState->getClosestId() != -1){
+
+		//se avevo cliccato
+		if (onClick==true){
+			selectionState->setCurrentSelectedId(selectionState->getClosestId());
+			m_Text->SetIntersection(true, selectionState->getCurrentSelectedId(), m_D3D->GetDeviceContext());
+			result = setSelectionState(selectionState, onClick);	
+		//devo anche eventualmente ruotare l'oggetto selezionato, nella direzione di spostamento del mouse.
+		//se true vuol dire che sto tenendo premuto il pulsante del mouse, allora procedo a ruotare nella direzione dello spostamento	
+			if (m_beginCheck == true){
+
+				int oldX = m_Input->getOldMouseX();
+				//se == -1 vuol dire che è il primo click su quell'oggetto, in quel caso non faccio niente.
+				if ( oldX != -1){
+
+					D3DXVECTOR3 test = m_Models[selectionState->getCurrentSelectedId()]->getPosition();
+					//mi sto spostando verso dx
+					if (oldX<mouseX)
+						test.x += 0.01f;
+					else if (oldX>mouseX)
+						test.x -= 0.01f;
+					else if (oldX == mouseX)
+						test.x = test.x;
+
+
+					m_Models[selectionState->getCurrentSelectedId()]->setPosition(test);
+
+				}
+				//salvo le coordinate correnti per la prossima iterazione
+				m_Input->setOldMouseX(mouseX);
+				m_Input->setOldMouseY(mouseY);
+			}
+			//se false vuol dire che ho rilasciato il mouse, o che non l'ho mai premuto, in ogni caso resetto la oldMouseX,Y
+			else if (m_beginCheck == false){
+				m_Input->setOldMouseX(-1);
+				m_Input->setOldMouseY(-1);
+			}
+
+
+		}
+		else{
+			selectionState->setCurrentHoverId(selectionState->getClosestId());
+			m_Text->SetIntersection(true, selectionState->getCurrentHoverId(), m_D3D->GetDeviceContext());
+			result = setSelectionState(selectionState, onClick);
+		}
+	}
+	//altrimenti non c'è alcuna intersezione, aggiorno semplicemente l'interfaccia
+	else{
+
+		m_Text->SetIntersection(false, selectionState->getCurrentSelectedId(), m_D3D->GetDeviceContext());
+	}
+
+
+
+	//result = setselectionState(selectionState, onClick);
 
 	return;
 }
@@ -763,7 +936,7 @@ bool ApplicationClass::RaySphereIntersect(D3DXVECTOR3 rayOrigin, D3DXVECTOR3 ray
 
 
 
-bool ApplicationClass::RayAABBIntersect(CollisionClass* pickedUpMesh, int currentid, D3DXVECTOR3 rayOrigin, D3DXVECTOR3 rayDirection, AabbClass* bCube)
+bool ApplicationClass::RayAABBIntersect(bool debug, CollisionClass* selectionState, int currentid, D3DXVECTOR3 rayOrigin, D3DXVECTOR3 rayDirection, AabbClass* bCube)
 {
 
 	
@@ -795,12 +968,16 @@ bool ApplicationClass::RayAABBIntersect(CollisionClass* pickedUpMesh, int curren
 		tmax = min(tmax, max(tz1, tz2));
 	}
 	
-	//se c'è l'intersezione, e il nuovo oggetto si trova ad una distanza inferiore rispetto a quello correntemente selezionato
-	//aggiorna pickedUpMesh con le informazioni sul nuovo oggetto
-	if (	(tmax >= tmin) && (pickedUpMesh->getCurrentMinDistance()>tmin)	){
+	if (debug == true){
+		int ciao = 23;
+	}
 
-		pickedUpMesh->setCurrentId(currentid);
-		pickedUpMesh->setCurrentMinDistance(tmin);
+	//se c'è l'intersezione, e il nuovo oggetto si trova ad una distanza inferiore rispetto a quello correntemente selezionato
+	//aggiorna selectionState con le informazioni sul nuovo oggetto
+	if (	(tmax >= tmin) && (selectionState->getCurrentMinDistance()>tmin)	){
+
+		selectionState->setClosestId(currentid);
+		selectionState->setCurrentMinDistance(tmin);
 		return  true;
 
 	}
@@ -809,34 +986,36 @@ bool ApplicationClass::RayAABBIntersect(CollisionClass* pickedUpMesh, int curren
 	
 }
 
-bool ApplicationClass::setPickedUpMesh(CollisionClass* pickedUpMesh){
+bool ApplicationClass::setSelectionState(CollisionClass* selectionState, bool onClick){
 
 	bool result;
 
-	switch (pickedUpMesh->getCurrentId()){
+	//se ho cliccato sull'oggetto uso il colore selezione
+	if (onClick  ){
+	
+		selectionState->setClicked(true);
+		result = setColor(selectionState->getCurrentSelectedId(), D3DXVECTOR4(0.5f, 0.6f, 0.34f, 1.0f));
 
-	case -1:
-		result = m_Text->SetIntersection(false, pickedUpMesh->getCurrentId(), m_D3D->GetDeviceContext());
-		result = setPickedUpColor(-1);
-		break;
+		
+	}
+	//altrimenti uso un colore diverso per l'hover
+	else 
+	{
 
-	default:
-		result = m_Text->SetIntersection(true, pickedUpMesh->getCurrentId(), m_D3D->GetDeviceContext());
-		result = setPickedUpColor(pickedUpMesh->getCurrentId());
+		selectionState->setClicked(false);
+		result = setColor(selectionState->getCurrentHoverId(), D3DXVECTOR4(0.1f, 0.9f, 0.64f, 1.0f));
+		return result;
 
 	}
 
-	return result;
+
+	
 }
 
-bool ApplicationClass::setPickedUpColor(int id){
+bool ApplicationClass::setColor(int id, D3DXVECTOR4 color){
 
-	//prendo l'id dell'ultima mesh selezionata e di quella correntemente selezionata
-	int last	= pickedUpMesh->getLastId();
-	int current = pickedUpMesh->getCurrentId();
-	//-1 indica che non c'è nessuna selezione attiva, altrimenti il valore intero corrisponde all'id della mesh selezionata
-	if (last != -1)m_Models[last]->setColor(D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f));
-	if (current != -1)m_Models[current]->setColor(D3DXVECTOR4(0.5f, 0.6f, 0.34f, 1.0f));
+
+	m_Models[id]->setColor(color);
 
 	return true;
 

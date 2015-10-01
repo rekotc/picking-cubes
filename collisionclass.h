@@ -11,17 +11,29 @@ public:
 	CollisionClass();
 	~CollisionClass();
 
-	int getCurrentId();
+	int getClosestId();
+	int getCurrentSelectedId();
+	int getCurrentHoverId();
 	int getCurrentMinDistance();
-	int getLastId();
+	int getLastSelectedId();
+	int getLastHoverId();
+	
 
-	void setCurrentId(int);
+	void setClosestId(int);
+	void setCurrentSelectedId(int);
+	void setCurrentHoverId(int);
 	void setCurrentMinDistance(double);
-	void setLastId(int);
+	void setLastSelectedId(int);
+	void setLastHoverId(int);
+	void setClicked(bool);
+	bool getClicked();
+
 	
 private:
 
-	int m_Id, m_lastId;
+	int m_ClosestId, m_SelectedId, m_LastSelectedId, m_HoverId, m_LastHoverId;
+	
+	bool wasClicked;
 	double m_tMinDistance;
 };
 

@@ -89,6 +89,7 @@ private:
 	AabbClass* m_boundingBox;
 	int m_id;
 
+	
 	D3DXVECTOR3 position;
 	D3DXVECTOR4 pickedUpColor;
 };

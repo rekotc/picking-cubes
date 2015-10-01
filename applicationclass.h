@@ -33,6 +33,7 @@ const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
 
+const int NUM_CUBES = 9;
 
 ////////////////////////////////////////////////////////////////////////////////
 // Class name: ApplicationClass
@@ -51,11 +52,11 @@ public:
 private:
 	bool HandleInput();
 	bool Render();
-	void TestIntersection(int, int);
+	void TestIntersection(int, int, bool);
 	bool RaySphereIntersect(D3DXVECTOR3, D3DXVECTOR3, float);
-	bool RayAABBIntersect(CollisionClass*, int, D3DXVECTOR3, D3DXVECTOR3, AabbClass*);
-	bool setPickedUpMesh(CollisionClass*);
-	bool setPickedUpColor(int);
+	bool RayAABBIntersect(bool, CollisionClass*, int, D3DXVECTOR3, D3DXVECTOR3, AabbClass*);
+	bool setSelectionState(CollisionClass*, bool);
+	bool setColor(int, D3DXVECTOR4);
 
 private:
 	InputClass* m_Input;
@@ -66,7 +67,7 @@ private:
 	ModelListClass* m_ModelList;
 
 
-	ModelClass* m_Models[2];
+	ModelClass* m_Models[NUM_CUBES];
 
 	ModelClass* m_Model;
 	ModelClass* m_Model2;
@@ -89,7 +90,9 @@ private:
 	D3DXVECTOR4 pickedUpColor2;
 	D3DXVECTOR4 pickedUpColors[2];
 
-	CollisionClass* pickedUpMesh;
+	CollisionClass* selectionState;
+
+	float rotation;
 };
 
 #endif

@@ -42,6 +42,12 @@ public:
 	bool IsEscapePressed();
 	bool IsLeftMouseButtonDown();
 
+	int getOldMouseX();
+	int getOldMouseY();
+
+	void setOldMouseX(int);
+	void setOldMouseY(int);
+
 private:
 	bool ReadKeyboard();
 	bool ReadMouse();
@@ -57,6 +63,7 @@ private:
 
 	int m_screenWidth, m_screenHeight;
 	int m_mouseX, m_mouseY;
+	int m_oldMouseX, m_oldMouseY;
 };
 
 #endif
