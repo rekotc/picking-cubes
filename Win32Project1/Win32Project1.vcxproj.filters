@@ -16,6 +16,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="data">
+      <UniqueIdentifier>{a3e0b41f-390d-42d3-bab1-3230161187e3}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\cameraclass.cpp">
@@ -145,5 +148,36 @@
     <None Include="..\texture.vs">
       <Filter>Shader Files</Filter>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\data\arrow.txt">
+      <Filter>data</Filter>
+    </Text>
+    <Text Include="..\data\crate.txt">
+      <Filter>data</Filter>
+    </Text>
+    <Text Include="..\data\fontdata.txt">
+      <Filter>data</Filter>
+    </Text>
+    <Text Include="..\data\sphere.txt">
+      <Filter>data</Filter>
+    </Text>
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\data\blue.dds">
+      <Filter>data</Filter>
+    </Image>
+    <Image Include="..\data\crate.dds">
+      <Filter>data</Filter>
+    </Image>
+    <Image Include="..\data\font.dds">
+      <Filter>data</Filter>
+    </Image>
+    <Image Include="..\data\mouse.dds">
+      <Filter>data</Filter>
+    </Image>
+    <Image Include="..\data\up.dds">
+      <Filter>data</Filter>
+    </Image>
   </ItemGroup>
 </Project>

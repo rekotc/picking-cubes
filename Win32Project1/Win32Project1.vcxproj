@@ -57,6 +57,19 @@
     <None Include="..\texture.ps" />
     <None Include="..\texture.vs" />
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\data\arrow.txt" />
+    <Text Include="..\data\crate.txt" />
+    <Text Include="..\data\fontdata.txt" />
+    <Text Include="..\data\sphere.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="..\data\blue.dds" />
+    <Image Include="..\data\crate.dds" />
+    <Image Include="..\data\font.dds" />
+    <Image Include="..\data\mouse.dds" />
+    <Image Include="..\data\up.dds" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <ProjectGuid>{0E330D19-AB0D-4E30-8DE4-E57293939892}</ProjectGuid>
     <Keyword>Win32Proj</Keyword>
