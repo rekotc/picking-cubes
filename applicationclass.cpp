@@ -493,6 +493,8 @@ bool ApplicationClass::Render()
 	D3DXVECTOR3 position;
 	D3DXMATRIX translation, combine;
 
+	
+
 	// Clear the buffers to begin the scene.
 	m_D3D->BeginScene(0.0f, 0.0f, 0.0f, 1.0f);
 	
@@ -542,17 +544,50 @@ bool ApplicationClass::Render()
 		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &rotation);
 		
 		//D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
-		D3DXMatrixRotationY(&worldMatrix, rotation);
-		D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
+		
+		/*BOH
+		D3DXMATRIX MatRot;
+		D3DXMATRIX MatTemp;
 
-		// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
-		m_Models[index]->Render(m_D3D->GetDeviceContext());
-		// Render the model using the light shader.
-		result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[index]->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Models[index]->GetTexture(), m_Light->GetDirection(), m_Models[index]->getColor());
+		D3DXMatrixIdentity(&MatRot);
+		D3DXMatrixIdentity(&MatTemp);
 
-		// Reset to the original world matrix.
-		m_D3D->GetWorldMatrix(worldMatrix);
+		// Now, apply the orientation variables to the world matrix
+		D3DXMatrixRotationY(&MatTemp, XM_PIDIV4);           // Yaw
+		D3DXMatrixMultiply(&MatRot, &MatRot, &MatTemp);
+		// Apply the rotation matrices to complete the world matrix.
+		D3DXMatrixMultiply(&worldMatrix, &MatRot, &worldMatrix);
 
+		//D3DXMatrixRotationY(&MatRot, XM_PIDIV4);           // Yaw
+		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatRot);
+		*/
+		//FINE BOH
+
+		//D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
+
+		D3DXMATRIX MatRot;
+		D3DXMATRIX MatTran;
+		D3DXMATRIX MatTransf;
+		if (index == 0){
+			D3DXMatrixRotationY(&MatRot, XM_PIDIV4);
+			D3DXMatrixTranslation(&MatTran, position.x, position.y, position.z);
+			D3DXMatrixMultiply(&MatTransf, &MatRot, &MatTran);
+			D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatTransf);
+		}
+		else{
+			D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
+		}
+			// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
+			m_Models[index]->Render(m_D3D->GetDeviceContext());
+			// Render the model using the light shader.
+			result = m_LightShader->Render(m_D3D->GetDeviceContext(), m_Models[index]->GetIndexCount(), worldMatrix, viewMatrix, projectionMatrix, m_Models[index]->GetTexture(), m_Light->GetDirection(), m_Models[index]->getColor());
+
+			// Reset to the original world matrix.
+			m_D3D->GetWorldMatrix(worldMatrix);
+
+
+		
+		
 		// Since this model was rendered then increase the count for this frame.
 		//renderCount++;
 
@@ -640,6 +675,7 @@ bool ApplicationClass::Render()
 
 	// Reset the world matrix.
 	m_D3D->GetWorldMatrix(worldMatrix);
+
 	int selected = selectionState->getCurrentSelectedId();
 	if (selected != -1){
 		// Translate to the location of the sphere.
@@ -867,17 +903,18 @@ void ApplicationClass::TestIntersection(int mouseX, int mouseY, bool onClick)
 				//se == -1 vuol dire che è il primo click su quell'oggetto, in quel caso non faccio niente.
 				if ( oldX != -1){
 
-					D3DXVECTOR3 test = m_Models[selectionState->getCurrentSelectedId()]->getPosition();
+					//D3DXVECTOR3 offset = m_Models[selectionState->getCurrentSelectedId()]->getPosition();
+					D3DXVECTOR3 offset = D3DXVECTOR3(0.0f,0.0f,0.0f);
 					//mi sto spostando verso dx
 					if (oldX<mouseX)
-						test.x += 0.01f;
+						offset.x = 0.01f;
 					else if (oldX>mouseX)
-						test.x -= 0.01f;
+						offset.x = - 0.01f;
 					else if (oldX == mouseX)
-						test.x = test.x;
-
-
-					m_Models[selectionState->getCurrentSelectedId()]->setPosition(test);
+						offset.x = 0;
+					
+					m_Models[selectionState->getCurrentSelectedId()]->updatePosition(offset);
+					m_Models[selectionState->getCurrentSelectedId()]->updateBoundingBoxPos(offset);
 
 				}
 				//salvo le coordinate correnti per la prossima iterazione

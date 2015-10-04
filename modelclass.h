@@ -52,13 +52,15 @@ public:
 	bool InitializeFlatRectangle(ID3D11Device*, float width, float height, WCHAR*);
 	void Shutdown();
 	void Render(ID3D11DeviceContext*);
-
+	
 	void setPosition(D3DXVECTOR3);
+	void updatePosition(D3DXVECTOR3);
 	D3DXVECTOR3 getPosition();
 
 	int GetIndexCount();
 	ID3D11ShaderResourceView* GetTexture();
 	AabbClass* getBoundingBox();
+	void updateBoundingBoxPos(D3DXVECTOR3);
 
 	void setId(int);
 	int getId();

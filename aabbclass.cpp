@@ -47,3 +47,14 @@ void AabbClass::BuildBoundingBox(float minX, float minY, float minZ, float maxX,
 
 }
 
+void AabbClass :: updatePosition(D3DXVECTOR3 offset){
+
+	min[0] += offset.x;
+	min[1] += offset.y;
+	min[2] += offset.z;
+
+	max[0] += offset.x;
+	max[1] += offset.y;
+	max[2] += offset.z;
+
+}

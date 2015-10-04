@@ -459,7 +459,7 @@ bool ModelClass::LoadModel(char* filename)
 		fin >> m_model[i].tu >> m_model[i].tv;
 		fin >> m_model[i].nx >> m_model[i].ny >> m_model[i].nz;
 
-		//controllo i valori min e max delle coordinate, li utilizzerò poi per la bounding box
+		//confronto i valori min e max delle coordinate, li utilizzerò poi per la bounding box
 		if (m_model[i].x > maxX)maxX = m_model[i].x;
 		if (m_model[i].x < minX)minX = m_model[i].x;
 
@@ -498,6 +498,12 @@ AabbClass* ModelClass::getBoundingBox(){
 	return m_boundingBox;
 }
 
+void ModelClass::updateBoundingBoxPos(D3DXVECTOR3 offset){
+
+	m_boundingBox->updatePosition(offset);
+
+}
+
 void ModelClass::setId(int id){
 
 	m_id = id;
@@ -511,6 +517,12 @@ int ModelClass::getId(){
 void ModelClass::setPosition(D3DXVECTOR3 p){
 
 	position = p;
+}
+
+
+void ModelClass::updatePosition(D3DXVECTOR3 offset){
+
+	position += offset;
 }
 
 D3DXVECTOR3 ModelClass::getPosition(){

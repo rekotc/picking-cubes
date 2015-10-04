@@ -4,6 +4,8 @@
 #ifndef _AABBCLASS_H_
 #define _AABBCLASS_H
 
+#include <d3dx10math.h>
+
 class AabbClass
 {
 private:
@@ -33,11 +35,12 @@ public:
 
 	//void BuildVertexArray(void*, char*, float, float);
 	void BuildBoundingBox(float,float,float,float,float,float);
-
+	void updatePosition(D3DXVECTOR3);
 	
 
 private:
 
+	
 	
 
 	bool LoadFontData(char*);
