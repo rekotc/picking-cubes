@@ -162,6 +162,9 @@
     <Text Include="..\data\sphere.txt">
       <Filter>data</Filter>
     </Text>
+    <Text Include="..\data\dice.txt">
+      <Filter>data</Filter>
+    </Text>
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\data\blue.dds">
@@ -177,6 +180,9 @@
       <Filter>data</Filter>
     </Image>
     <Image Include="..\data\up.dds">
+      <Filter>data</Filter>
+    </Image>
+    <Image Include="..\data\dice.dds">
       <Filter>data</Filter>
     </Image>
   </ItemGroup>

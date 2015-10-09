@@ -60,12 +60,14 @@
   <ItemGroup>
     <Text Include="..\data\arrow.txt" />
     <Text Include="..\data\crate.txt" />
+    <Text Include="..\data\dice.txt" />
     <Text Include="..\data\fontdata.txt" />
     <Text Include="..\data\sphere.txt" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="..\data\blue.dds" />
     <Image Include="..\data\crate.dds" />
+    <Image Include="..\data\dice.dds" />
     <Image Include="..\data\font.dds" />
     <Image Include="..\data\mouse.dds" />
     <Image Include="..\data\up.dds" />
