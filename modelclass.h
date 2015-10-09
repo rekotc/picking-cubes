@@ -68,6 +68,9 @@ public:
 	void setColor(D3DXVECTOR4);
 	D3DXVECTOR4 getColor();
 
+	D3DXVECTOR3 getRotation();
+	void setRotation(D3DXVECTOR3);
+
 private:
 	bool InitializeBuffers(ID3D11Device*);
 	bool InitializeBuffersFlatRectangle(ID3D11Device*);
@@ -91,7 +94,7 @@ private:
 	AabbClass* m_boundingBox;
 	int m_id;
 
-	
+	D3DXVECTOR3 rotation;
 	D3DXVECTOR3 position;
 	D3DXVECTOR4 pickedUpColor;
 };

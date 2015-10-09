@@ -41,6 +41,8 @@ public:
 	void GetMouseLocation(int&, int&);
 	bool IsEscapePressed();
 	bool IsLeftMouseButtonDown();
+	bool isDraggingWithLeftMouseButton();
+	void setDraggingWithLeftMouseButton(bool);
 
 	int getOldMouseX();
 	int getOldMouseY();
@@ -60,6 +62,8 @@ private:
 
 	unsigned char m_keyboardState[256];
 	DIMOUSESTATE m_mouseState;
+
+	bool m_isDraggingWithLeftMouseButton;
 
 	int m_screenWidth, m_screenHeight;
 	int m_mouseX, m_mouseY;

@@ -11,6 +11,10 @@ InputClass::InputClass()
 	m_mouse = 0;
 	m_oldMouseX = -1;
 	m_oldMouseY = -1;
+
+	m_isDraggingWithLeftMouseButton = false;
+
+
 }
 
 
@@ -273,4 +277,15 @@ int InputClass::getOldMouseX()
 int InputClass::getOldMouseY()
 {
 	return m_oldMouseY;
+}
+
+bool InputClass::isDraggingWithLeftMouseButton(){
+
+	return m_isDraggingWithLeftMouseButton;
+}
+
+void InputClass::setDraggingWithLeftMouseButton(bool d){
+
+	m_isDraggingWithLeftMouseButton = d;
+
 }

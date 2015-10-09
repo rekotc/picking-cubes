@@ -35,12 +35,15 @@ public:
 	TextClass(const TextClass&);
 	~TextClass();
 
-	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, HWND, int, int, D3DXMATRIX);
+	bool Initialize(ID3D11Device*, ID3D11DeviceContext*, HWND, int, int, D3DXMATRIX, int, int);
 	void Shutdown();
 	bool Render(ID3D11DeviceContext*, D3DXMATRIX, D3DXMATRIX);
 
 	bool SetIntersection(bool, ID3D11DeviceContext*);
 	bool SetIntersection(bool, int, ID3D11DeviceContext*);
+
+	bool SetDistance(int, ID3D11DeviceContext*);
+	bool SetDistance(float,float, ID3D11DeviceContext*);
 
 private:
 	bool InitializeSentence(SentenceType**, int, ID3D11Device*);

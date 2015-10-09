@@ -22,7 +22,7 @@ TextClass::~TextClass()
 }
 
 bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceContext, HWND hwnd, int screenWidth, int screenHeight, 
-						   D3DXMATRIX baseViewMatrix)
+						   D3DXMATRIX baseViewMatrix, int x, int y)
 {
 	bool result;
 
@@ -65,14 +65,14 @@ bool TextClass::Initialize(ID3D11Device* device, ID3D11DeviceContext* deviceCont
 	}
 
 	// Initialize the first sentence.
-	result = InitializeSentence(&m_sentence1, 32, device);
+	result = InitializeSentence(&m_sentence1, 100, device);
 	if(!result)
 	{
 		return false;
 	}
 
 	// Now update the sentence vertex buffer with the new string information.
-	result = UpdateSentence(m_sentence1, "Intersection: No", 20, 20, 1.0f, 0.0f, 0.0f, deviceContext);
+	result = UpdateSentence(m_sentence1, "Intersection: No", x, y, 1.0f, 0.0f, 0.0f, deviceContext);
 	if(!result)
 	{
 		return false;
@@ -393,6 +393,49 @@ bool TextClass::SetIntersection(bool intersection, int id, ID3D11DeviceContext* 
 		strcpy_s(intersectionString, "Intersection: No");
 		result = UpdateSentence(m_sentence1, intersectionString, 20, 20, 1.0f, 0.0f, 0.0f, deviceContext);
 	}
+
+	return result;
+}
+
+bool TextClass::SetDistance(int distance, ID3D11DeviceContext* deviceContext){
+
+	char baseSentence[32] = "Distance: ";
+	char numstr[21]; // enough to hold all numbers up to 64-bits
+	char fullSentence[32];
+	bool result;
+	
+	//strcpy_s(baseSentence, "Distance: ");
+	sprintf_s(numstr, "%d", distance);
+	//char fullSentence[32] = baseSentence + numstr;
+	strcat_s(baseSentence, numstr);
+	
+	//sprintf_s(tempString, "%f", distance);
+	//strcat_s(string, tempString);
+	result = UpdateSentence(m_sentence1, baseSentence, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
+
+	return result;
+}
+
+bool TextClass::SetDistance(float rotationAroundY, float rotationAroundX, ID3D11DeviceContext* deviceContext){
+
+	char baseSentence[100] = "Rotation around Y axis: ";
+	char numstr[21]; // enough to hold all numbers up to 64-bits
+	
+	bool result;
+
+	//strcpy_s(baseSentence, "Distance: ");
+	sprintf_s(numstr, "%f", rotationAroundY);
+	//char fullSentence[32] = baseSentence + numstr;
+	strcat_s(baseSentence, numstr);
+
+	strcat_s(baseSentence, " - Rotation around X axis: ");
+	sprintf_s(numstr, "%f", rotationAroundX);
+	strcat_s(baseSentence, numstr);
+
+
+	//sprintf_s(tempString, "%f", distance);
+	//strcat_s(string, tempString);
+	result = UpdateSentence(m_sentence1, baseSentence, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
 
 	return result;
 }

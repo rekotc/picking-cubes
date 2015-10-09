@@ -28,7 +28,7 @@ using namespace DirectX;
 /////////////
 // GLOBALS //
 /////////////
-const bool FULL_SCREEN = true;
+const bool FULL_SCREEN = false;
 const bool VSYNC_ENABLED = true;
 const float SCREEN_DEPTH = 1000.0f;
 const float SCREEN_NEAR = 0.1f;
@@ -51,12 +51,18 @@ public:
 
 private:
 	bool HandleInput();
-	bool Render();
-	void TestIntersection(int, int, bool);
+	bool Render(float);
+	void TestIntersection();
 	bool RaySphereIntersect(D3DXVECTOR3, D3DXVECTOR3, float);
 	bool RayAABBIntersect(bool, CollisionClass*, int, D3DXVECTOR3, D3DXVECTOR3, AabbClass*);
-	bool setSelectionState(CollisionClass*, bool);
+	
 	bool setColor(int, D3DXVECTOR4);
+	bool handleIntersection();
+	bool resetSelection(int);
+	bool moveObject();
+
+	bool completeRotation();
+	float calculateDelta(float, float);
 
 private:
 	InputClass* m_Input;
@@ -78,10 +84,27 @@ private:
 	LightShaderClass* m_LightShader;
 	LightClass* m_Light;
 	TextClass* m_Text;
+	TextClass* m_Text2;
 	BitmapClass* m_Bitmap;
 
 	BitmapClass* m_ArrowUp;
-	bool m_beginCheck;
+	bool m_LeftButtonIsBeingKeptPressed;
+	bool m_isDraggingWithLeftMouseButton;
+	bool m_cubeIsBeingRotated;
+
+	float m_cubeCurrentRotationAroundY;
+	float m_cubeCurrentRotationAroundX;
+	
+	int m_upsideDown;
+
+	bool m_cubeDraggedOnYAxisClockwise;
+	bool m_cubeDraggedOnXAxisClockwise;
+
+	bool m_leftButtonIsClicked;
+	bool m_leftButtonWasClicked;
+	bool m_leftButtonIsBeingDragged;
+	int m_mouseX, m_mouseY;
+
 	int m_screenWidth, m_screenHeight;
 
 	//AabbClass* bCube;
@@ -92,7 +115,7 @@ private:
 
 	CollisionClass* selectionState;
 
-	float rotation;
+
 };
 
 #endif

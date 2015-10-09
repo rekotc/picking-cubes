@@ -13,6 +13,8 @@ ModelClass::ModelClass()
 	m_boundingBox = 0;
 	m_id = 0;
 
+	rotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+
 	pickedUpColor = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
 	//pickedUpColors[1] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
 }
@@ -539,4 +541,14 @@ void ModelClass::setColor(D3DXVECTOR4 c)
 D3DXVECTOR4 ModelClass::getColor()
 {
 	return pickedUpColor;
+}
+
+D3DXVECTOR3 ModelClass::getRotation(){
+
+	return rotation;
+}
+
+void ModelClass::setRotation(D3DXVECTOR3 r){
+
+	rotation = r;
 }
