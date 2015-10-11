@@ -95,10 +95,16 @@ private:
 	float m_cubeCurrentRotationAroundY;
 	float m_cubeCurrentRotationAroundX;
 	
-	int m_upsideDown;
+	bool m_isUpsideDown;
+	float m_oldRotationX;
 
 	bool m_cubeDraggedOnYAxisClockwise;
 	bool m_cubeDraggedOnXAxisClockwise;
+
+	bool m_YaxisIsPosZ;
+	bool m_YaxisIsNegZ;
+	bool m_YaxisIsPosY;
+	bool m_YaxisIsNegY;
 
 	bool m_leftButtonIsClicked;
 	bool m_leftButtonWasClicked;

@@ -54,7 +54,13 @@ ApplicationClass::ApplicationClass()
 	m_cubeDraggedOnYAxisClockwise = false;
 	m_cubeDraggedOnXAxisClockwise = false;
 
-	m_upsideDown = 1;
+	m_isUpsideDown = false;
+	m_oldRotationX = 0.0f;
+
+	m_YaxisIsPosZ = false;
+	m_YaxisIsNegZ = false;
+	m_YaxisIsPosY = true;
+	m_YaxisIsNegY = false;
 
 	//m_mouseX, m_mouseY;
 
@@ -1056,37 +1062,30 @@ bool ApplicationClass::moveObject(){
 				m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*distanceY*0.2;
 
 
-				/*	if (rotation.x <= -XM_PI){
-						rotation.x += (float)XM_PI*0.02*distance*0.2;
-						m_cubeCurrentRotationAroundX += (float)XM_PI*0.03*distance*0.2;
-						rotation.y = -rotation.y;
-						m_cubeCurrentRotationAroundY = -m_cubeCurrentRotationAroundY;
-
-
-
-						}*/
-
-
-				if (m_mouseY>=500){
-
-					int bug = 0;
-
-				}
-
-				/*if (m_cubeCurrentRotationAroundX > 6.0f){
-
-					int bug = 5;
-				}
-				else{
-
-					//int buggone = 3;
-				}*/
-
 				if (rotation.x < -XM_2PI)
 				{
 					rotation.x = 0.0f;
 					m_cubeCurrentRotationAroundX = 0.0f;
 				}
+
+				//verifico se ho capovolto l'oggetto mentre lo ruotavo verso il basso, le successive rotazioni su Y
+				//devono allora avvenire su Y negativo
+
+			/*	if (rotation.x <= -XM_PI){
+
+					m_YaxisIsNegY == true;
+					m_YaxisIsPosY == false;
+				
+				}*/
+
+				/*else if (rotation.x <= -XM_PI){
+
+					m_YaxisIsNegY == false;
+					m_YaxisIsPosY == true;
+				}
+				*/
+
+
 			}
 		}
 	
@@ -1102,13 +1101,26 @@ bool ApplicationClass::moveObject(){
 				//mi sto spostando verso dx 
 				if (distanceX > 0){
 					//offset.x = 0.01f;
-					rotation.y -= (float)XM_PI*0.03*distanceX*0.2;
-					m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*distanceX*0.2;
 
-					if (rotation.y < -XM_2PI)
-					{
-						rotation.y = 0.0f;
-						m_cubeCurrentRotationAroundY = 0.0f;
+					if (m_isUpsideDown==false){
+						rotation.y -= (float)XM_PI*0.03*distanceX*0.2;
+						m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*distanceX*0.2;
+
+						if (rotation.y < -XM_2PI)
+						{
+							rotation.y = 0.0f;
+							m_cubeCurrentRotationAroundY = 0.0f;
+						}
+					}
+					else if (m_isUpsideDown == true){
+						rotation.y += (float)XM_PI*0.03*distanceX*0.2;
+						m_cubeCurrentRotationAroundY += (float)XM_PI*0.03*distanceX*0.2;
+
+						if (rotation.y > XM_2PI)
+						{
+							rotation.y = 0.0f;
+							m_cubeCurrentRotationAroundY = 0.0f;
+						}
 					}
 
 
@@ -1116,15 +1128,30 @@ bool ApplicationClass::moveObject(){
 				}
 				//mi sto spostando verso sx
 				else if (distanceX < 0){
-					//offset.x = -0.01f;
-					rotation.y += (float)XM_PI*0.03*(-distanceX)*0.2;
-					m_cubeCurrentRotationAroundY += (float)XM_PI*0.03*(-distanceX)*0.2;
 
-					if (rotation.y > XM_2PI)
-					{
-						rotation.y = 0.0f;
-						m_cubeCurrentRotationAroundY = 0.0f;
+					if (m_isUpsideDown == false){
+						//offset.x = -0.01f;
+						rotation.y += (float)XM_PI*0.03*(-distanceX)*0.2;
+						m_cubeCurrentRotationAroundY += (float)XM_PI*0.03*(-distanceX)*0.2;
+
+						if (rotation.y > XM_2PI)
+						{
+							rotation.y = 0.0f;
+							m_cubeCurrentRotationAroundY = 0.0f;
+						}
 					}
+					else if (m_isUpsideDown == true){
+
+						rotation.y -= (float)XM_PI*0.03*(-distanceX)*0.2;
+						m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*(-distanceX)*0.2;
+
+						if (rotation.y < -XM_2PI)
+						{
+							rotation.y = 0.0f;
+							m_cubeCurrentRotationAroundY = 0.0f;
+						}
+					}
+					
 
 
 				}
@@ -1208,12 +1235,37 @@ bool ApplicationClass :: completeRotation(){
 
 	rotation.x += (chosenAngle - m_cubeCurrentRotationAroundX);
 	
-	
+
+	//se ho capovolto l'oggetto, la rotazione su Y deve avvenire su Y negativo
+/*	if (m_YaxisIsNegY == true){
+
+
+	}*/
+
+	//devo verificare su quali assi il cubo si trova in questo momento.
+
+	//se l'angolo di rotazione su X è cambiato rispetto all'iterazione precedente, controllo l'orientamento dell'asse Y
+	if (rotation.x != m_oldRotationX){
+		//se ho ruotato il cubo in modo da aver invertito l'asse di rotazione Y (cioè se ho ruotato il cubo sottosopra)
+		if (rotation.x == -XM_PI || rotation.x == XM_PI || rotation.x == 0.0f || rotation.x == XM_2PI){
+
+			if (m_isUpsideDown == false)m_isUpsideDown = true;
+			else m_isUpsideDown = false;
+
+			m_YaxisIsNegY = true;
+			m_YaxisIsPosY = false;
+			int test = 5;
+		}
+	}
+
+	m_oldRotationX = rotation.x;
 	m_Models[selectionState->getClosestId()]->setRotation(rotation);
 	//resetto la variabile di controllo
 	m_cubeIsBeingRotated = false;
 	m_cubeCurrentRotationAroundY = 0.0f;
 	m_cubeCurrentRotationAroundX = 0.0f;
+	
+
 
 	return true;
 }
