@@ -92,6 +92,11 @@ private:
 	bool m_isDraggingWithLeftMouseButton;
 	bool m_cubeIsBeingRotated;
 
+
+	D3DXVECTOR3 rotation;
+	D3DXMATRIX rotationMatrix;
+	D3DXMATRIX rotX, rotY, rotZ;
+
 	float m_cubeCurrentRotationAroundY;
 	float m_cubeCurrentRotationAroundX;
 	

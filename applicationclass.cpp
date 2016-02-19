@@ -47,14 +47,15 @@ ApplicationClass::ApplicationClass()
 	m_cubeCurrentRotationAroundY = 0.0f;
 	m_cubeCurrentRotationAroundX = 0.0f;
 
-
+	rotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	
 
 
 	m_cubeIsBeingRotated = false;
 	m_cubeDraggedOnYAxisClockwise = false;
 	m_cubeDraggedOnXAxisClockwise = false;
 
-	m_isUpsideDown = false;
+	m_isUpsideDown = true;
 	m_oldRotationX = 0.0f;
 
 	m_YaxisIsPosZ = false;
@@ -80,6 +81,16 @@ ApplicationClass::~ApplicationClass()
 
 bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidth, int screenHeight)
 {
+
+	D3DXMatrixIdentity(&rotationMatrix);
+	D3DXMatrixRotationX(&rotX, 0.0f);
+	D3DXMatrixRotationY(&rotY, 0.0f);
+	D3DXMatrixRotationZ(&rotZ, 0.0f);
+
+	D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotX);
+	D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotY);
+	D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotZ);
+
 	bool result;
 	D3DXMATRIX baseViewMatrix;
 	
@@ -596,7 +607,7 @@ bool ApplicationClass::Render(float rotationB)
 		rotation = m_Models[index]->getRotation();
 		D3DXMATRIX MatRotY,MatRotX;
 		D3DXMATRIX MatTran;
-		D3DXMATRIX MatTransf;
+		D3DXMATRIX MatRotXY;
 
 
 		/*if (index == 0){
@@ -610,14 +621,31 @@ bool ApplicationClass::Render(float rotationB)
 			D3DXMatrixTranslation(&worldMatrix, position.x, position.y, position.z);
 		}*/
 
+		
+
+
+
 		D3DXMatrixRotationY(&MatRotY, rotation.y);
 		D3DXMatrixRotationX(&MatRotX, rotation.x);
 		D3DXMatrixTranslation(&MatTran, position.x, position.y, position.z);
+	
+		//QUI
+		D3DXMatrixIdentity(&MatRotXY);
+		D3DXMatrixMultiply(&MatRotXY, &MatRotXY, &MatRotX);		
+		D3DXMatrixMultiply(&MatRotXY, &MatRotXY, &MatRotY);
 
-		D3DXMatrixMultiply(&MatTransf, &MatRotY, &MatRotX);
-		D3DXMatrixMultiply(&MatTransf, &MatTransf, &MatTran);
+		//OLD
+		//D3DXMatrixMultiply(&MatRotXY, &MatRotXY, &MatTran);
+		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatRotXY);
 
-		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatTransf);
+		
+		//NEW
+		//D3DXMatrixMultiply();
+
+		//D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &MatTran);
+		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &rotationMatrix);
+		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatTran);
+				
 
 			// Put the model vertex and index buffers on the graphics pipeline to prepare them for drawing.
 			m_Models[index]->Render(m_D3D->GetDeviceContext());
@@ -1028,144 +1056,55 @@ bool ApplicationClass::moveObject(){
 	m_cubeIsBeingRotated = true;
 		//D3DXVECTOR3 offset = m_Models[selectionState->getCurrentSelectedId()]->getPosition();
 	D3DXVECTOR3 offset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
-	D3DXVECTOR3 rotation = m_Models[selectionState->getClosestId()]->getRotation();
+	//D3DXVECTOR3 rotation = m_Models[selectionState->getClosestId()]->getRotation();
+	
 
 	int distanceY,distanceX;	
 
 	distanceY = m_mouseY - oldY;
 	distanceX = m_mouseX - oldX;
 
+	D3DXMATRIX rotationTemp;
 	
 	//ROTAZIONE ASSE X
-		if (oldY != -1){
-			
+		if (oldY != -1){		
 			//se distance è negativo significa che mi sto spostando verso alto
-			if (distanceY < 0){
-				//offset.x = 0.01f;
-				rotation.x += (float)XM_PI*0.03*(-distanceY)*0.2;
-				//rotation.y -= (float)XM_PI*0.03*distance*0.2;
-				m_cubeCurrentRotationAroundX += (float)XM_PI*0.03*(-distanceY)*0.2;
-
-				if (rotation.x > XM_2PI)
+		
+			
+			rotation.x = -(float)XM_PI*0.03*(distanceY)*0.2;			
+			m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*(distanceY)*0.2;
+			D3DXMatrixRotationX(&rotX, rotation.x);
+			D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotX);
+			/*	if (rotation.x > XM_2PI)
 				{
 					rotation.x = 0.0f;
 					m_cubeCurrentRotationAroundX = 0.0f;
-				}
-
-
-			}
-			//mi sto spostando verso basso
-			else if (distanceY > 0){
-				//offset.x = -0.01f;
-
-				rotation.x -= (float)XM_PI*0.03*distanceY*0.2;
-				m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*distanceY*0.2;
-
-
-				if (rotation.x < -XM_2PI)
-				{
-					rotation.x = 0.0f;
-					m_cubeCurrentRotationAroundX = 0.0f;
-				}
-
-				//verifico se ho capovolto l'oggetto mentre lo ruotavo verso il basso, le successive rotazioni su Y
-				//devono allora avvenire su Y negativo
-
-			/*	if (rotation.x <= -XM_PI){
-
-					m_YaxisIsNegY == true;
-					m_YaxisIsPosY == false;
-				
 				}*/
-
-				/*else if (rotation.x <= -XM_PI){
-
-					m_YaxisIsNegY == false;
-					m_YaxisIsPosY == true;
-				}
-				*/
-
-
-			}
+		
+			
 		}
 	
-	
+		//FINE ROTAZIONE ASSE X
+
+		//ROTAZIONE ASSE Y
 			//se == -1 vuol dire che è il primo click su quell'oggetto, in quel caso non faccio niente.
 			if (oldX != -1){
 
-
-	//FINE ROTAZIONE ASSE X
-
-
-				//ROTAZIONE ASSE Y
-				//mi sto spostando verso dx 
-				if (distanceX > 0){
-					//offset.x = 0.01f;
-
-					if (m_isUpsideDown==false){
-						rotation.y -= (float)XM_PI*0.03*distanceX*0.2;
+				
+									 
+						rotation.y = -(float)XM_PI*0.03*distanceX*0.2;
 						m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*distanceX*0.2;
-
-						if (rotation.y < -XM_2PI)
+						D3DXMatrixRotationY(&rotY, rotation.y);
+						D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotY);
+						/*if (rotation.y > XM_2PI)
 						{
 							rotation.y = 0.0f;
 							m_cubeCurrentRotationAroundY = 0.0f;
-						}
-					}
-					else if (m_isUpsideDown == true){
-						rotation.y += (float)XM_PI*0.03*distanceX*0.2;
-						m_cubeCurrentRotationAroundY += (float)XM_PI*0.03*distanceX*0.2;
-
-						if (rotation.y > XM_2PI)
-						{
-							rotation.y = 0.0f;
-							m_cubeCurrentRotationAroundY = 0.0f;
-						}
-					}
-
-
-
-				}
-				//mi sto spostando verso sx
-				else if (distanceX < 0){
-
-					if (m_isUpsideDown == false){
-						//offset.x = -0.01f;
-						rotation.y += (float)XM_PI*0.03*(-distanceX)*0.2;
-						m_cubeCurrentRotationAroundY += (float)XM_PI*0.03*(-distanceX)*0.2;
-
-						if (rotation.y > XM_2PI)
-						{
-							rotation.y = 0.0f;
-							m_cubeCurrentRotationAroundY = 0.0f;
-						}
-					}
-					else if (m_isUpsideDown == true){
-
-						rotation.y -= (float)XM_PI*0.03*(-distanceX)*0.2;
-						m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*(-distanceX)*0.2;
-
-						if (rotation.y < -XM_2PI)
-						{
-							rotation.y = 0.0f;
-							m_cubeCurrentRotationAroundY = 0.0f;
-						}
-					}
+						}*/
 					
 
-
-				}
 			}
 
-			if (m_cubeCurrentRotationAroundY >= 0.0f)	//maggiore di zero significa rotazione in senso orario su Y
-				m_cubeDraggedOnYAxisClockwise = true;
-			else m_cubeDraggedOnYAxisClockwise = false;
-
-			if (m_cubeCurrentRotationAroundX >= 0.0f)	//maggiore di zero significa rotazione in senso orario su X
-				m_cubeDraggedOnXAxisClockwise = true;
-			else m_cubeDraggedOnXAxisClockwise = false;
-
-		
 	//SAVE STATE
 
 	m_Text2->SetDistance(m_cubeCurrentRotationAroundY, m_cubeCurrentRotationAroundX, m_D3D->GetDeviceContext());
@@ -1183,7 +1122,7 @@ bool ApplicationClass::moveObject(){
 
 bool ApplicationClass :: completeRotation(){
 
-	D3DXVECTOR3 rotation = m_Models[selectionState->getClosestId()]->getRotation();
+/*	D3DXVECTOR3 rotation = m_Models[selectionState->getClosestId()]->getRotation();
 
 
 	float angles[5] = { 0.0f, XM_PIDIV2, XM_PI, 1.5f*XM_PI, XM_2PI };
@@ -1237,10 +1176,10 @@ bool ApplicationClass :: completeRotation(){
 	
 
 	//se ho capovolto l'oggetto, la rotazione su Y deve avvenire su Y negativo
-/*	if (m_YaxisIsNegY == true){
+//	if (m_YaxisIsNegY == true){
 
 
-	}*/
+	//}
 
 	//devo verificare su quali assi il cubo si trova in questo momento.
 
@@ -1265,9 +1204,11 @@ bool ApplicationClass :: completeRotation(){
 	m_cubeCurrentRotationAroundY = 0.0f;
 	m_cubeCurrentRotationAroundX = 0.0f;
 	
-
+	*/
 
 	return true;
+
+	
 }
 
 float ApplicationClass::calculateDelta(float r, float a){

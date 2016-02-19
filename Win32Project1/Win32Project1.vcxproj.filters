@@ -66,14 +66,14 @@
     <ClCompile Include="..\bitmapclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\aabbclass.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\collisionclass.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="..\modellistclass.cpp">
       <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\aabbclass.cpp">
+      <Filter>Header Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
