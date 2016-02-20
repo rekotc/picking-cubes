@@ -126,7 +126,7 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\modellistclass.h">
-      <Filter>Header Files</Filter>
+      <Filter>Shader Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

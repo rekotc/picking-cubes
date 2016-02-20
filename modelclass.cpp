@@ -13,6 +13,8 @@ ModelClass::ModelClass()
 	m_boundingBox = 0;
 	m_id = 0;
 
+	//m_rotationMatrix = 0;	
+
 	rotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	pickedUpColor = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -58,7 +60,14 @@ bool ModelClass::Initialize(ID3D11Device* device, char* modelFilename, WCHAR* te
 		return false;
 	}
 
-	
+	D3DXMatrixIdentity(&m_rotationMatrix);
+	D3DXMatrixRotationX(&rotX, 0.0f);
+	D3DXMatrixRotationY(&rotY, 0.0f);
+	D3DXMatrixRotationZ(&rotZ, 0.0f);
+
+	D3DXMatrixMultiply(&m_rotationMatrix, &m_rotationMatrix, &rotX);
+	D3DXMatrixMultiply(&m_rotationMatrix, &m_rotationMatrix, &rotY);
+	D3DXMatrixMultiply(&m_rotationMatrix, &m_rotationMatrix, &rotZ);
 
 	return true;
 }
@@ -548,7 +557,17 @@ D3DXVECTOR3 ModelClass::getRotation(){
 	return rotation;
 }
 
+D3DXMATRIX* ModelClass::getRotationMatrix(){
+
+	return &m_rotationMatrix;
+}
+
 void ModelClass::setRotation(D3DXVECTOR3 r){
 
 	rotation = r;
+}
+
+void setRotationMatrix(D3DXMATRIX r){
+
+	//m_rotationMatrix = r;
 }

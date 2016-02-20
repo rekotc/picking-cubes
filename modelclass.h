@@ -70,6 +70,8 @@ public:
 
 	D3DXVECTOR3 getRotation();
 	void setRotation(D3DXVECTOR3);
+	D3DXMATRIX* getRotationMatrix();
+	void setRotationMatrix(D3DXMATRIX);
 
 private:
 	bool InitializeBuffers(ID3D11Device*);
@@ -94,6 +96,8 @@ private:
 	AabbClass* m_boundingBox;
 	int m_id;
 
+	D3DXMATRIX m_rotationMatrix;
+	D3DXMATRIX rotX, rotY, rotZ;
 	D3DXVECTOR3 rotation;
 	D3DXVECTOR3 position;
 	D3DXVECTOR4 pickedUpColor;

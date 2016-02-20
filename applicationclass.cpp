@@ -624,26 +624,18 @@ bool ApplicationClass::Render(float rotationB)
 		
 
 
-
-		D3DXMatrixRotationY(&MatRotY, rotation.y);
+		//OLD BUGGY
+		/*D3DXMatrixRotationY(&MatRotY, rotation.y);
 		D3DXMatrixRotationX(&MatRotX, rotation.x);
 		D3DXMatrixTranslation(&MatTran, position.x, position.y, position.z);
-	
-		//QUI
-		D3DXMatrixIdentity(&MatRotXY);
-		D3DXMatrixMultiply(&MatRotXY, &MatRotXY, &MatRotX);		
-		D3DXMatrixMultiply(&MatRotXY, &MatRotXY, &MatRotY);
+		D3DXMatrixMultiply(&MatRotXY, &MatRotY, &MatRotX);
+		D3DXMatrixMultiply(&MatRotXY, &MatRotXY, &MatTran);
+		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatRotXY);*/
 
-		//OLD
-		//D3DXMatrixMultiply(&MatRotXY, &MatRotXY, &MatTran);
-		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatRotXY);
-
-		
-		//NEW
-		//D3DXMatrixMultiply();
-
-		//D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &MatTran);
-		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &rotationMatrix);
+		D3DXMatrixTranslation(&MatTran, position.x, position.y, position.z);
+		//D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &rotationMatrix);
+		//rotationMatrix = m_Models[index]->getRotationMatrix();
+		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, m_Models[index]->getRotationMatrix());
 		D3DXMatrixMultiply(&worldMatrix, &worldMatrix, &MatTran);
 				
 
@@ -1066,20 +1058,45 @@ bool ApplicationClass::moveObject(){
 
 	D3DXMATRIX rotationTemp;
 	
+
+	if ((oldY != -1) || (oldX != -1)){
+
+
+		if (std::abs(distanceX) > std::abs(distanceY)){
+
+			rotation.y = -(float)XM_PI*0.03*distanceX*0.2;
+			m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*distanceX*0.2;
+			D3DXMatrixRotationY(&rotY, rotation.y);
+			D3DXMatrixMultiply(m_Models[selectionState->getClosestId()]->getRotationMatrix(), m_Models[selectionState->getClosestId()]->getRotationMatrix(), &rotY);
+
+
+		}
+		else
+		{
+			rotation.x = -(float)XM_PI*0.03*(distanceY)*0.2;
+			m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*(distanceY)*0.2;
+			//the matrix gets recreated every time
+			D3DXMatrixRotationX(&rotX, rotation.x);
+			D3DXMatrixMultiply(m_Models[selectionState->getClosestId()]->getRotationMatrix(), m_Models[selectionState->getClosestId()]->getRotationMatrix(), &rotX);
+
+
+		}
+	}
+
 	//ROTAZIONE ASSE X
-		if (oldY != -1){		
+	/*	if (oldY != -1){		
 			//se distance è negativo significa che mi sto spostando verso alto
 		
-			
-			rotation.x = -(float)XM_PI*0.03*(distanceY)*0.2;			
-			m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*(distanceY)*0.2;
-			D3DXMatrixRotationX(&rotX, rotation.x);
-			D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotX);
-			/*	if (rotation.x > XM_2PI)
-				{
-					rotation.x = 0.0f;
-					m_cubeCurrentRotationAroundX = 0.0f;
-				}*/
+			if ((distanceY>2)||(distanceY<-2)){
+				rotation.x = -(float)XM_PI*0.03*(distanceY)*0.2;
+				m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*(distanceY)*0.2;
+				//the matrix gets recreated every time
+				D3DXMatrixRotationX(&rotX, rotation.x);
+				D3DXMatrixMultiply(m_Models[selectionState->getClosestId()]->getRotationMatrix(), m_Models[selectionState->getClosestId()]->getRotationMatrix(), &rotX);
+				//m_Models[selectionState->getClosestId()]->setRotationMatrix(rotationMatrix);
+			}
+
+
 		
 			
 		}
@@ -1090,21 +1107,17 @@ bool ApplicationClass::moveObject(){
 			//se == -1 vuol dire che è il primo click su quell'oggetto, in quel caso non faccio niente.
 			if (oldX != -1){
 
-				
-									 
-						rotation.y = -(float)XM_PI*0.03*distanceX*0.2;
-						m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*distanceX*0.2;
-						D3DXMatrixRotationY(&rotY, rotation.y);
-						D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotY);
-						/*if (rotation.y > XM_2PI)
-						{
-							rotation.y = 0.0f;
-							m_cubeCurrentRotationAroundY = 0.0f;
-						}*/
-					
+				if ((distanceX > 2)||(distanceX<-2)){
+					rotation.y = -(float)XM_PI*0.03*distanceX*0.2;
+					m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*distanceX*0.2;
+					D3DXMatrixRotationY(&rotY, rotation.y);
+					D3DXMatrixMultiply(m_Models[selectionState->getClosestId()]->getRotationMatrix(), m_Models[selectionState->getClosestId()]->getRotationMatrix(), &rotY);
+				//D3DXMatrixMultiply(&rotationMatrix, &rotationMatrix, &rotY);
+				}
+						
 
 			}
-
+*/
 	//SAVE STATE
 
 	m_Text2->SetDistance(m_cubeCurrentRotationAroundY, m_cubeCurrentRotationAroundX, m_D3D->GetDeviceContext());
