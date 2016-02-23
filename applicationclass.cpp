@@ -31,6 +31,7 @@ ApplicationClass::ApplicationClass()
 	m_Light = 0;
 	m_Text = 0;
 	m_Text2 = 0;
+	m_Text3 = 0;
 	m_Bitmap = 0;
 	m_ArrowUp = 0;
 	//bCube = 0;
@@ -46,6 +47,9 @@ ApplicationClass::ApplicationClass()
 
 	m_cubeCurrentRotationAroundY = 0.0f;
 	m_cubeCurrentRotationAroundX = 0.0f;
+
+	m_cubeLastRotationAroundY = 0.0f;
+	m_cubeLastRotationAroundX = 0.0f;
 
 	rotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 	
@@ -303,6 +307,22 @@ bool ApplicationClass::Initialize(HINSTANCE hinstance, HWND hwnd, int screenWidt
 		return false;
 	}
 
+	// Create the text object 3.
+	m_Text3 = new TextClass;
+	if (!m_Text3)
+	{
+		return false;
+	}
+
+	// Initialize the text object.
+	result = m_Text3->Initialize(m_D3D->GetDevice(), m_D3D->GetDeviceContext(), hwnd, screenWidth, screenHeight, baseViewMatrix, 20, 80);
+	if (!result)
+	{
+		MessageBox(hwnd, L"Could not initialize the text 3 object.", L"Error", MB_OK);
+		return false;
+	}
+
+
 	// Create the bitmap object.
 	m_Bitmap = new BitmapClass;
 	if(!m_Bitmap)
@@ -503,7 +523,7 @@ bool ApplicationClass::HandleInput()
 		//devo completare la rotazione del cubo se questo flag è settato
 		if (m_cubeIsBeingRotated==true){
 
-			result = completeRotation();
+			result = completeRotation(3);
 		}
 
 		
@@ -518,7 +538,7 @@ bool ApplicationClass::HandleInput()
 
 		//resetto la selezione corrente
 		resetSelection(selectionState->getClosestId());
-		m_Text->SetIntersection(false, selectionState->getClosestId(), m_D3D->GetDeviceContext());
+		//m_Text->SetIntersection(false, selectionState->getClosestId(), m_D3D->GetDeviceContext());
 		//resetto le coordinate del mouse necessarie per calcolare lo spostamento dell'oggetto selezionato.
 		m_Input->setOldMouseX(-1);
 		m_Input->setOldMouseY(-1);
@@ -776,7 +796,7 @@ bool ApplicationClass::Render(float rotationB)
 	result = m_Bitmap->Render(m_D3D->GetDeviceContext(), mouseX, mouseY);  if(!result) { return false; }
 	result = m_TextureShader->Render(m_D3D->GetDeviceContext(), m_Bitmap->GetIndexCount(), worldMatrix, viewMatrix, orthoMatrix, m_Bitmap->GetTexture());
 
-	
+	/*
 
 	// Render the text strings.
 	result = m_Text->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
@@ -787,6 +807,13 @@ bool ApplicationClass::Render(float rotationB)
 
 	// Render the text 2 strings.
 	result = m_Text2->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
+	if (!result)
+	{
+		return false;
+	}
+	*/
+	// Render the text 3 strings.
+	result = m_Text3->Render(m_D3D->GetDeviceContext(), worldMatrix, orthoMatrix);
 	if (!result)
 	{
 		return false;
@@ -1013,12 +1040,12 @@ bool ApplicationClass::handleIntersection(){
 
 		//se ho cliccato, aggiorno l'oggetto selezionato con il colore clicked.
 		if (m_leftButtonIsClicked == true){
-			m_Text->SetIntersection(true, selectionState->getClosestId(), m_D3D->GetDeviceContext());
+			//m_Text->SetIntersection(true, selectionState->getClosestId(), m_D3D->GetDeviceContext());
 			result = setColor(id, D3DXVECTOR4(0.5f, 0.6f, 0.34f, 1.0f));
 		}
 		//se non ho cliccato, aggiorno l'oggetto selezionato con il colore hover.
 		else if (m_leftButtonIsClicked == false){
-			m_Text->SetIntersection(true, selectionState->getClosestId(), m_D3D->GetDeviceContext());
+			//m_Text->SetIntersection(true, selectionState->getClosestId(), m_D3D->GetDeviceContext());
 			result = setColor(id, D3DXVECTOR4(0.1f, 0.9f, 0.64f, 1.0f));
 		}
 
@@ -1043,8 +1070,9 @@ bool ApplicationClass::resetSelection(int closestId){
 
 bool ApplicationClass::moveObject(){
 
-	int oldX = m_Input->getOldMouseX();
-	int oldY = m_Input->getOldMouseY();
+	int id = selectionState->getClosestId();
+	int oldX	= m_Input->getOldMouseX();
+	int oldY	= m_Input->getOldMouseY();
 	m_cubeIsBeingRotated = true;
 		//D3DXVECTOR3 offset = m_Models[selectionState->getCurrentSelectedId()]->getPosition();
 	D3DXVECTOR3 offset = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
@@ -1057,30 +1085,93 @@ bool ApplicationClass::moveObject(){
 	distanceX = m_mouseX - oldX;
 
 	D3DXMATRIX rotationTemp;
+	int direction=0;
 	
-
 	if ((oldY != -1) || (oldX != -1)){
 
+		//se sto trascinando il mouse sull'asse X
+		if (std::abs(distanceX) >= std::abs(distanceY)){
 
-		if (std::abs(distanceX) > std::abs(distanceY)){
 
-			rotation.y = -(float)XM_PI*0.03*distanceX*0.2;
-			m_cubeCurrentRotationAroundY -= (float)XM_PI*0.03*distanceX*0.2;
+			//inversione ultima rotazione sull'asse opposto
+			//D3DXMatrixRotationX(&rotX, -m_Models[id]->getRotation().x);
+
+			/*D3DXMatrixRotationX(&rotX, m_Models[id]->getRotation().x);
+			D3DXMatrixInverse(&rotX,NULL,&rotX);
+			D3DXMatrixMultiply(m_Models[id]->getRotationMatrix(), &rotX, m_Models[id]->getRotationMatrix() );
+			m_Models[id]->setRotationX(0.0f);*/
+
+
+			//completo la rotazione relativa all'altro asse
+			//devo fornire l'id del cubo correntemente selezionato
+			//devo fornire l'asse attorno a cui voglio completare la rotazione (sarà quello opposto di quello corrente)
+			
+
+
+			//ora calcolo la rotazione su questo asse.
+			if (abs(distanceX) > 0){
+				//direction = (distanceX > 0) ? 1 : -1;
+				//rotation.y = XM_PIDIV4*direction;
+				//contiene l'angolo in radianti relativo alla rotazione del frame corrente
+				rotation.y = -(float)XM_PI*distanceX*0.006;
+				//contiene l'angolo in radianti relativo alla rotazione complessiva dell'oggetto
+				//if (m_cubeCurrentRotationAroundY)
+				m_cubeCurrentRotationAroundY -= (float)XM_PI*distanceX*0.006;
+				m_cubeCurrentRotationAroundY = (abs(m_cubeCurrentRotationAroundY) >= XM_2PI) ? 0.0f : m_cubeCurrentRotationAroundY;
+			}
+			else rotation.y = 0;
+
+			
 			D3DXMatrixRotationY(&rotY, rotation.y);
-			D3DXMatrixMultiply(m_Models[selectionState->getClosestId()]->getRotationMatrix(), m_Models[selectionState->getClosestId()]->getRotationMatrix(), &rotY);
+			D3DXMatrixMultiply(m_Models[id]->getRotationMatrix(), m_Models[id]->getRotationMatrix(), &rotY);
+
+			//devo modificare la matrice di rotazione in modo da resettare eventuali rotazioni precedenti lungo l'asse opposto.
 
 
+
+
+			//IMMONDIZIA
+			//rotation.x = 0;
+			
+		
+			
 		}
+		//se sto trascinando il mouse sull'asse Y
 		else
 		{
-			rotation.x = -(float)XM_PI*0.03*(distanceY)*0.2;
-			m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*(distanceY)*0.2;
+			//D3DXMatrixRotationY(&rotY, -m_Models[id]->getRotation().y);
+
+			//completeRotation(id);
+
+			/*D3DXMatrixRotationY(&rotY, m_Models[id]->getRotation().y);
+			D3DXMatrixInverse(&rotY, NULL, &rotY);
+			D3DXMatrixMultiply(m_Models[id]->getRotationMatrix(), &rotY, m_Models[id]->getRotationMatrix() );
+			m_Models[id]->setRotationY(0.0f);*/
+			/*
+			if (abs(distanceY) > 5){
+				//direction = (distanceY > 0) ? 1 : -1;
+				//rotation.x = XM_PIDIV4*direction;
+				//rotation.x contiene solo la rotazione applicata a questa iterazione 
+				rotation.x = -(float)XM_PI*(distanceY)*0.006;
+				//m_cubeCurrentRotationAroundX contiene invece la rotazione complessiva applicata al cubo
+				m_cubeCurrentRotationAroundX -= (float)XM_PI*0.03*(distanceY)*0.2;
+			}
+			else rotation.x = 0;
+			
 			//the matrix gets recreated every time
 			D3DXMatrixRotationX(&rotX, rotation.x);
-			D3DXMatrixMultiply(m_Models[selectionState->getClosestId()]->getRotationMatrix(), m_Models[selectionState->getClosestId()]->getRotationMatrix(), &rotX);
-
-
+			D3DXMatrixMultiply(m_Models[id]->getRotationMatrix(), m_Models[id]->getRotationMatrix(), &rotX);
+			
+			//IMMONDIZIA
+			//rotation.y = 0;
+		*/	
 		}
+
+		//aggiorno la last rotation
+		m_cubeLastRotationAroundX = rotation.x;
+		m_cubeLastRotationAroundY = rotation.y;
+
+
 	}
 
 	//ROTAZIONE ASSE X
@@ -1119,12 +1210,14 @@ bool ApplicationClass::moveObject(){
 			}
 */
 	//SAVE STATE
+	
+	//m_Text2->SetDistance(m_cubeCurrentRotationAroundY, m_cubeCurrentRotationAroundX, m_D3D->GetDeviceContext());
 
-	m_Text2->SetDistance(m_cubeCurrentRotationAroundY, m_cubeCurrentRotationAroundX, m_D3D->GetDeviceContext());
+
 
 	//aggiorno sempre la posizione
 	m_Models[selectionState->getClosestId()]->updatePosition(offset);
-	m_Models[selectionState->getClosestId()]->setRotation(rotation);
+	//m_Models[selectionState->getClosestId()]->setRotation(rotation);
 	//m_Models[selectionState->getClosestId()]->updateBoundingBoxPos(offset);
 	//salvo le coordinate correnti per la prossima iterazione
 	m_Input->setOldMouseX(m_mouseX);
@@ -1133,17 +1226,21 @@ bool ApplicationClass::moveObject(){
 	return true;
 }
 
-bool ApplicationClass :: completeRotation(){
+bool ApplicationClass :: completeRotation(int i){
 
-/*	D3DXVECTOR3 rotation = m_Models[selectionState->getClosestId()]->getRotation();
+	int id = i;
+	char axis = 'y';
+
+
+	D3DXVECTOR3 rotation = m_Models[id]->getRotation();
 
 
 	float angles[5] = { 0.0f, XM_PIDIV2, XM_PI, 1.5f*XM_PI, XM_2PI };
-	//valore arbitrario, più grande dei valori ottenibili con calculateDelta();
+	//valore arbitrario ma più grande dei valori ottenibili con calculateDelta();
 	float delta = 4*XM_PI;
 	float temp;
 	float chosenAngle = 0.0f;
-
+	float extraRot = 0.0f;
 	//ROTAZIONE ASSE Y
 
 	for (int i = 0; i < 5; i++){
@@ -1157,14 +1254,17 @@ bool ApplicationClass :: completeRotation(){
 
 	}
 
-	if (m_cubeDraggedOnYAxisClockwise == false) {
-		chosenAngle = -chosenAngle;
-		//m_cubeCurrentRotation = -m_cubeCurrentRotation;
-	}
+	//rotation.y = (chosenAngle - m_cubeCurrentRotationAroundY);
+	rotation.y = chosenAngle;
+	extraRot = (m_cubeCurrentRotationAroundY >= 0) ? (chosenAngle - m_cubeCurrentRotationAroundY) : - (chosenAngle + m_cubeCurrentRotationAroundY);
+	m_cubeCurrentRotationAroundY = rotation.y;
+	//m_Text2->SetDistance(m_cubeCurrentRotationAroundY, m_cubeCurrentRotationAroundX, m_D3D->GetDeviceContext());
+	m_Text3->SetDistance(chosenAngle, extraRot, m_cubeCurrentRotationAroundY, m_D3D->GetDeviceContext());
+	//m_cubeCurrentRotationAroundX = rotation.y;
 
-	rotation.y += (chosenAngle - m_cubeCurrentRotationAroundY);
+	//extraRot = ;
 
-	//ROTAZIONE ASSE X
+	/*//ROTAZIONE ASSE X
 
 	delta = 4 * XM_PI;
 	chosenAngle = 0.0f;
@@ -1180,14 +1280,10 @@ bool ApplicationClass :: completeRotation(){
 
 	}
 
-	if (m_cubeDraggedOnXAxisClockwise == false) {
-		chosenAngle = -chosenAngle;
-		//m_cubeCurrentRotation = -m_cubeCurrentRotation;
-	}
-
-	rotation.x += (chosenAngle - m_cubeCurrentRotationAroundX);
+	rotation.x += (chosenAngle - m_cubeCurrentRotationAroundX);*/
 	
-
+	//IMMONDIZIA
+/*
 	//se ho capovolto l'oggetto, la rotazione su Y deve avvenire su Y negativo
 //	if (m_YaxisIsNegY == true){
 
@@ -1211,17 +1307,20 @@ bool ApplicationClass :: completeRotation(){
 	}
 
 	m_oldRotationX = rotation.x;
-	m_Models[selectionState->getClosestId()]->setRotation(rotation);
+
+	*/
+	m_Models[id]->setRotation(rotation);
+	D3DXMatrixRotationY(&rotY, extraRot);
+	D3DXMatrixMultiply(m_Models[id]->getRotationMatrix(), m_Models[id]->getRotationMatrix(), &rotY);
+
+
+
+
 	//resetto la variabile di controllo
 	m_cubeIsBeingRotated = false;
-	m_cubeCurrentRotationAroundY = 0.0f;
-	m_cubeCurrentRotationAroundX = 0.0f;
 	
-	*/
 
-	return true;
-
-	
+	return true;	
 }
 
 float ApplicationClass::calculateDelta(float r, float a){

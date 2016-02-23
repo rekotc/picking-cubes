@@ -61,7 +61,7 @@ private:
 	bool resetSelection(int);
 	bool moveObject();
 
-	bool completeRotation();
+	bool completeRotation(int);
 	float calculateDelta(float, float);
 
 private:
@@ -85,6 +85,7 @@ private:
 	LightClass* m_Light;
 	TextClass* m_Text;
 	TextClass* m_Text2;
+	TextClass* m_Text3;
 	BitmapClass* m_Bitmap;
 
 	BitmapClass* m_ArrowUp;
@@ -100,6 +101,9 @@ private:
 	float m_cubeCurrentRotationAroundY;
 	float m_cubeCurrentRotationAroundX;
 	
+	float m_cubeLastRotationAroundX;
+	float m_cubeLastRotationAroundY;
+
 	bool m_isUpsideDown;
 	float m_oldRotationX;
 

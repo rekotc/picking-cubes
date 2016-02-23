@@ -44,6 +44,7 @@ public:
 
 	bool SetDistance(int, ID3D11DeviceContext*);
 	bool SetDistance(float,float, ID3D11DeviceContext*);
+	bool SetDistance(float, float, float, ID3D11DeviceContext*);
 
 private:
 	bool InitializeSentence(SentenceType**, int, ID3D11Device*);

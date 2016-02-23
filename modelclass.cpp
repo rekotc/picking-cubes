@@ -557,6 +557,20 @@ D3DXVECTOR3 ModelClass::getRotation(){
 	return rotation;
 }
 
+void ModelClass::setRotationX(float r){
+
+	rotation.x = r;
+}
+void ModelClass::setRotationY(float r){
+
+	rotation.y = r;
+
+}
+void ModelClass::setRotationZ(float r){
+
+	rotation.z = r;
+}
+
 D3DXMATRIX* ModelClass::getRotationMatrix(){
 
 	return &m_rotationMatrix;

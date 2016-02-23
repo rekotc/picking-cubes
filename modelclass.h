@@ -69,7 +69,12 @@ public:
 	D3DXVECTOR4 getColor();
 
 	D3DXVECTOR3 getRotation();
+
 	void setRotation(D3DXVECTOR3);
+	void setRotationX(float);
+	void setRotationY(float);
+	void setRotationZ(float);
+
 	D3DXMATRIX* getRotationMatrix();
 	void setRotationMatrix(D3DXMATRIX);
 
