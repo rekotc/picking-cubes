@@ -13,9 +13,10 @@ ModelClass::ModelClass()
 	m_boundingBox = 0;
 	m_id = 0;
 
-	//m_rotationMatrix = 0;	
+	//D3DXMatrixIdentity(&m_rotationMatrix);
 
-	rotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	instantRotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
+	fixedRotation = D3DXVECTOR3(0.0f, 0.0f, 0.0f);
 
 	pickedUpColor = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
 	//pickedUpColors[1] = D3DXVECTOR4(0.0f, 0.0f, 0.0f, 1.0f);
@@ -552,23 +553,23 @@ D3DXVECTOR4 ModelClass::getColor()
 	return pickedUpColor;
 }
 
-D3DXVECTOR3 ModelClass::getRotation(){
+D3DXVECTOR3 ModelClass::getInstantRotation(){
 
-	return rotation;
+	return instantRotation;
 }
 
-void ModelClass::setRotationX(float r){
+void ModelClass::setInstantRotationX(float r){
 
-	rotation.x = r;
+	instantRotation.x = r;
 }
-void ModelClass::setRotationY(float r){
+void ModelClass::setInstantRotationY(float r){
 
-	rotation.y = r;
+	instantRotation.y = r;
 
 }
-void ModelClass::setRotationZ(float r){
+void ModelClass::setInstantRotationZ(float r){
 
-	rotation.z = r;
+	instantRotation.z = r;
 }
 
 D3DXMATRIX* ModelClass::getRotationMatrix(){
@@ -576,12 +577,31 @@ D3DXMATRIX* ModelClass::getRotationMatrix(){
 	return &m_rotationMatrix;
 }
 
-void ModelClass::setRotation(D3DXVECTOR3 r){
+D3DXVECTOR3 ModelClass::getFixedRotation(){
 
-	rotation = r;
+	return fixedRotation;
 }
 
-void setRotationMatrix(D3DXMATRIX r){
+void ModelClass::setInstantRotation(D3DXVECTOR3 r){
 
-	//m_rotationMatrix = r;
+	instantRotation = r;
+}
+
+void  ModelClass::setFixedRotation(D3DXVECTOR3 r){
+
+	fixedRotation = r;
+}
+void  ModelClass::setFixedRotationX(float r){
+	fixedRotation.x = r;
+}
+void  ModelClass::setFixedRotationY(float r){
+	fixedRotation.y = r;
+}
+void  ModelClass::setFixedRotationZ(float r){
+	fixedRotation.z = r;
+}
+
+void ModelClass::setRotationMatrix(D3DXMATRIX r){
+
+	m_rotationMatrix = r;
 }

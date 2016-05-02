@@ -22,6 +22,7 @@
 #include "modellistclass.h"
 #include <math.h>
 #include <DirectXMath.h>
+#include <D3dx9math.h>
 
 using namespace DirectX;
 
@@ -61,7 +62,7 @@ private:
 	bool resetSelection(int);
 	bool moveObject();
 
-	bool completeRotation(int);
+	bool completeRotation(int,char);
 	float calculateDelta(float, float);
 
 private:
@@ -94,7 +95,7 @@ private:
 	bool m_cubeIsBeingRotated;
 
 	
-	D3DXVECTOR3 rotation;
+	D3DXVECTOR3 instantRotation,fixedRotation;
 	D3DXMATRIX rotationMatrix;
 	D3DXMATRIX rotX, rotY, rotZ;
 
@@ -105,10 +106,17 @@ private:
 	float m_cubeLastRotationAroundY;
 
 	bool m_isUpsideDown;
+	int m_upsideDownMultiplier;
 	float m_oldRotationX;
 
 	bool m_cubeDraggedOnYAxisClockwise;
 	bool m_cubeDraggedOnXAxisClockwise;
+
+	bool m_rotationIsAroundX;
+	bool m_rotationIsAroundY;
+	bool m_rotationLock;
+
+	char m_axis;
 
 	bool m_YaxisIsPosZ;
 	bool m_YaxisIsNegZ;
@@ -119,6 +127,8 @@ private:
 	bool m_leftButtonWasClicked;
 	bool m_leftButtonIsBeingDragged;
 	int m_mouseX, m_mouseY;
+
+	D3DXQUATERNION m_qRotation;
 
 	int m_screenWidth, m_screenHeight;
 

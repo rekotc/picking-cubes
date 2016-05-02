@@ -442,7 +442,7 @@ bool TextClass::SetDistance(float rotationAroundY, float rotationAroundX, ID3D11
 
 bool TextClass::SetDistance(float c, float e, float m,ID3D11DeviceContext* deviceContext){
 
-	char baseSentence[300] = "L'angolo a cui è stato ruotato il cubo è (in radianti): ";
+	char baseSentence[300] = "L'angolo utente è: ";
 	char numstr[21]; // enough to hold all numbers up to 64-bits
 
 	bool result;
@@ -452,17 +452,17 @@ bool TextClass::SetDistance(float c, float e, float m,ID3D11DeviceContext* devic
 	//char fullSentence[32] = baseSentence + numstr;
 	strcat_s(baseSentence, numstr);
 
-	strcat_s(baseSentence, " - applicando una rotazione extra pari a radianti: ");
+	strcat_s(baseSentence, " - con rotazione extra di: ");
 	sprintf_s(numstr, "%f", e);
 	strcat_s(baseSentence, numstr);
 
-	strcat_s(baseSentence, " - l'angolo di rotazione del cubo è quindi (in radianti): ");
+	strcat_s(baseSentence, " - l'angolo del cubo è quindi: ");
 	sprintf_s(numstr, "%f", m);
 	strcat_s(baseSentence, numstr);
 
 	//sprintf_s(tempString, "%f", distance);
 	//strcat_s(string, tempString);
-	result = UpdateSentence(m_sentence1, baseSentence, 20, 40, 0.0f, 1.0f, 0.0f, deviceContext);
+	result = UpdateSentence(m_sentence1, baseSentence, 20, 80, 0.0f, 1.0f, 0.0f, deviceContext);
 
 	return result;
 }

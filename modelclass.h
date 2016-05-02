@@ -68,12 +68,18 @@ public:
 	void setColor(D3DXVECTOR4);
 	D3DXVECTOR4 getColor();
 
-	D3DXVECTOR3 getRotation();
+	D3DXVECTOR3 getInstantRotation();
+	D3DXVECTOR3 getFixedRotation();
 
-	void setRotation(D3DXVECTOR3);
-	void setRotationX(float);
-	void setRotationY(float);
-	void setRotationZ(float);
+	void setInstantRotation(D3DXVECTOR3);
+	void setInstantRotationX(float);
+	void setInstantRotationY(float);
+	void setInstantRotationZ(float);
+
+	void setFixedRotation(D3DXVECTOR3);
+	void setFixedRotationX(float);
+	void setFixedRotationY(float);
+	void setFixedRotationZ(float);
 
 	D3DXMATRIX* getRotationMatrix();
 	void setRotationMatrix(D3DXMATRIX);
@@ -103,7 +109,8 @@ private:
 
 	D3DXMATRIX m_rotationMatrix;
 	D3DXMATRIX rotX, rotY, rotZ;
-	D3DXVECTOR3 rotation;
+	D3DXVECTOR3 instantRotation;
+	D3DXVECTOR3 fixedRotation;
 	D3DXVECTOR3 position;
 	D3DXVECTOR4 pickedUpColor;
 };
