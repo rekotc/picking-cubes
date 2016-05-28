@@ -878,10 +878,10 @@ bool ApplicationClass::Render(float rotationB)
 	m_D3D->GetWorldMatrix(worldMatrix);
 
 	// Turn off the Z buffer to begin all 2D rendering.
-	m_D3D->TurnZBufferOff();
+	//m_D3D->TurnZBufferOff();
 
 	// Turn on alpha blending.
-	m_D3D->EnableAlphaBlending();
+	//m_D3D->EnableAlphaBlending();
 
 	// Get the location of the mouse from the input object,
 	m_Input->GetMouseLocation(mouseX, mouseY);
@@ -917,10 +917,10 @@ bool ApplicationClass::Render(float rotationB)
 
 
 	// Turn of alpha blending.
-	m_D3D->DisableAlphaBlending();
+	//m_D3D->DisableAlphaBlending();
 
 	// Turn the Z buffer back on now that all 2D rendering has completed.
-	m_D3D->TurnZBufferOn();
+	//m_D3D->TurnZBufferOn();
 
 	// Present the rendered scene to the screen.
 	m_D3D->EndScene();

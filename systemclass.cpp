@@ -128,7 +128,21 @@ bool SystemClass::Frame()
 
 LRESULT CALLBACK SystemClass::MessageHandler(HWND hwnd, UINT umsg, WPARAM wparam, LPARAM lparam)
 {
-	return DefWindowProc(hwnd, umsg, wparam, lparam);
+
+
+	switch (umsg)
+	{
+	
+	case WM_LBUTTONDOWN:                    // left mouse button down
+		
+		return 0;
+
+		default:
+	{
+		return DefWindowProc(hwnd, umsg, wparam, lparam);
+	}
+
+	}
 }
 
 
